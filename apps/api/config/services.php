@@ -58,6 +58,12 @@ return [
         'host' => env('SITES_HOST', 'manhagy.online'),
     ],
 
+    // The video provider behind Media\Contracts\VideoHost. `fake` until one is chosen (docs/TECH_PLAN.md §14).
+    'video' => [
+        'driver' => env('VIDEO_DRIVER', 'fake'),
+        'fake_duration' => (int) env('VIDEO_FAKE_DURATION', 600),
+    ],
+
     'webpush' => [
         'public_key' => env('VAPID_PUBLIC_KEY'),
         'private_key' => env('VAPID_PRIVATE_KEY'),
