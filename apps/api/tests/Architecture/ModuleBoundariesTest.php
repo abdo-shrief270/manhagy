@@ -11,6 +11,7 @@ use App\Modules\Billing\Models\PlatformAdmin;
 use App\Modules\Billing\Models\PlatformAdminAction;
 use App\Modules\Identity\Models\Tenant;
 use App\Modules\Identity\Models\User;
+use App\Modules\Learners\Models\Learner;
 use App\Support\Modules\ModuleRegistry;
 use App\Support\Tenancy\BelongsToTenant;
 use App\Support\Tenancy\SharedBetweenTenants;
@@ -29,6 +30,7 @@ class ModuleBoundariesTest extends TestCase
     private const UNSCOPED_MODELS = [
         Tenant::class,
         User::class,
+        Learner::class,
         PlatformAdmin::class,
         BillingCoupon::class,
         PlatformAdminAction::class,

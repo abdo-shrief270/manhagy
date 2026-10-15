@@ -53,6 +53,11 @@ return [
         'hang_seconds' => (int) env('DIAGNOSTICS_HANG_SECONDS', 120),
     ],
 
+    // Each account's student platform lives at {slug}.{host} (e.g. mr-mohamed.manhagy.online).
+    'sites' => [
+        'host' => env('SITES_HOST', 'manhagy.online'),
+    ],
+
     'webpush' => [
         'public_key' => env('VAPID_PUBLIC_KEY'),
         'private_key' => env('VAPID_PRIVATE_KEY'),

@@ -7,14 +7,14 @@ namespace App\Support\Modules;
 final readonly class MenuItem
 {
     /** Sidebar sections, in display order. The web app holds their titles. */
-    public const GROUPS = ['sales', 'stock', 'services', 'reports', 'settings'];
+    public const GROUPS = ['teaching', 'learners', 'sales', 'center', 'reports', 'settings'];
 
     public function __construct(
         public string $to,
         public string $label,
         public string $icon,
         public ?string $permission = null,
-        public string $group = 'sales',
+        public string $group = 'teaching',
         /** False while the screen behind this entry isn't built yet: the entry stays out of the menu. */
         public bool $ready = true,
         /** A feature switch the entry needs (off = the entry is hidden for everyone). */

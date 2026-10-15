@@ -18,6 +18,8 @@ class RouteAuthorizationTest extends TestCase
     /** uri => why it needs no permission of its own */
     private const OPEN = [
         'api/v1/auth/me' => 'your own session',
+        'api/v1/learner/me' => 'a student\'s own session (the learner middleware: their token, site and device)',
+        'api/v1/learner/logout' => 'a student\'s own session (the learner middleware: their token, site and device)',
         'api/v1/auth/logout' => 'your own session',
         'api/v1/billing/status' => 'the subscription banner every screen shows',
 
