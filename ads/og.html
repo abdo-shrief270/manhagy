@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>og</title>
+<style>
+@font-face { font-family: Cairo; src: local('Cairo'); }
+:root {
+  --brand: #4F46E5; --brand-d: #3730A3; --brand-dd: #1E1B4B; --brand-l: #EEF2FF; --brand-ll: #E0E7FF; --brand-m: #A5B4FC;
+  --amber: #F59E0B; --amber-d: #B45309; --amber-l: #FEF3C7; --amber-m: #FBBF24;
+  --ink: #0F172A; --ink-2: #334155; --muted: #64748B; --line: #E2E8F0; --line-2: #F1F5F9;
+  --bg: #F5F6FB; --card: #FFFFFF;
+  --green: #16A34A; --green-l: #DCFCE7; --red: #DC2626; --red-l: #FEE2E2; --teal: #0D9488; --teal-l: #CCFBF1;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Cairo, sans-serif; direction: rtl; color: var(--ink); -webkit-font-smoothing: antialiased; }
+.num { direction: ltr; unicode-bidi: isolate; font-variant-numeric: tabular-nums; }
+.ltr { direction: ltr; unicode-bidi: isolate; }
+
+.sb { height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 6px 30px 0 34px; direction: ltr; font-weight: 700; font-size: 16px; letter-spacing: -.01em; }
+.sb-icons { display: flex; gap: 6px; align-items: center; }
+
+html, body { width: 1200px; height: 630px; overflow: hidden; background: #0B0920; }
+
+.phone { position: absolute; border-radius: 9% / 4.3%; background: #0B0B12; padding: 2.9%; box-shadow: 0 50px 90px rgba(10,8,40,.45), 0 0 0 2px #2b2a3a inset; }
+.phone img { display: block; width: 100%; border-radius: 7.4% / 3.45%; }
+.phone .island { position: absolute; top: 3.1%; left: 50%; transform: translateX(-50%); width: 29%; height: 3.3%; border-radius: 30px; background: #000; }
+
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand b { display: block; font-size: 44px; font-weight: 800; line-height: 1; }
+.brand small { display: block; font-size: 13px; letter-spacing: .4em; font-weight: 800; direction: ltr; text-align: right; margin-top: 7px; }
+.brand.dark b { color: #fff; } .brand.dark small { color: #A5B4FC; }
+.brand.light b { color: #1E1B4B; } .brand.light small { color: #6366F1; }
+.cta { display: inline-flex; align-items: center; gap: 14px; height: 92px; padding: 0 44px; border-radius: 26px; font-size: 36px; font-weight: 800; }
+.cta.amber { background: #F59E0B; color: #1E1B4B; box-shadow: 0 16px 34px rgba(245,158,11,.35); }
+.cta.indigo { background: #4F46E5; color: #fff; box-shadow: 0 16px 34px rgba(79,70,229,.35); }
+.chip { display: inline-flex; align-items: center; gap: 10px; border-radius: 999px; font-weight: 800; }
+
+body { 
+background: radial-gradient(900px 700px at 15% 70%, rgba(99,102,241,.45), transparent 60%),
+            radial-gradient(700px 600px at 100% 0%, rgba(245,158,11,.16), transparent 60%),
+            linear-gradient(180deg, #14113A, #0B0920);
+ color: #fff; position: relative; overflow: hidden; }
+.txt { position: absolute; top: 120px; right: 70px; width: 560px; }
+h1 { font-size: 62px; font-weight: 900; line-height: 1.2; margin-top: 34px; }
+h1 em { font-style: normal; color: #FBBF24; }
+.txt p { font-size: 27px; font-weight: 600; color: #E0E7FF; line-height: 1.55; margin-top: 14px; }
+.phone { box-shadow: 0 30px 60px rgba(0,0,0,.5), 0 0 0 2px #2b2a3a inset; }
+</style></head><body>
+<div class="txt">
+  
+<div class="brand dark"><svg width="56" height="56" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="منهجي">
+  <defs>
+    <linearGradient id="mh-g-og" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#3730A3"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#mh-g-og)"/>
+  <path d="M32 20.5c-5.2-3.7-11.8-4.7-19.5-3.1v27.4c7.7-1.6 14.3-.6 19.5 3.1z" fill="#fff"/>
+  <path d="M32 20.5c5.2-3.7 11.8-4.7 19.5-3.1v27.4c-7.7-1.6-14.3-.6-19.5 3.1z" fill="#C7D2FE"/>
+  <path d="M27.6 26.6v13.3c0 1 1.1 1.6 1.9 1.1l10.6-6.7c.8-.5.8-1.6 0-2.1l-10.6-6.7c-.8-.5-1.9.1-1.9 1.1z" fill="#F59E0B"/>
+</svg>
+<div><b>منهجي</b><small>MANHAGY</small></div></div>
+  <h1>منصتك التعليمية <em>باسمك</em></h1>
+  <p>فيديو محمي باسم كل طالب، أكواد، امتحانات،<br>وتقرير لولي الأمر. للمدرسين والسناتر.</p>
+</div>
+<div class="phone " style="width:250px;left:250px;top:90px;transform:rotate(6deg)"><img src="../out/screens/home-physics.png" alt=""><span class="island"></span></div>
+<div class="phone " style="width:260px;left:60px;top:60px;transform:rotate(-5deg)"><img src="../out/screens/player.png" alt=""><span class="island"></span></div>
+</body></html>

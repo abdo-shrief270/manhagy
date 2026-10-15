@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>home-physics</title>
+<style>
+@font-face { font-family: Cairo; src: local('Cairo'); }
+:root {
+  --brand: #4F46E5; --brand-d: #3730A3; --brand-dd: #1E1B4B; --brand-l: #EEF2FF; --brand-ll: #E0E7FF; --brand-m: #A5B4FC;
+  --amber: #F59E0B; --amber-d: #B45309; --amber-l: #FEF3C7; --amber-m: #FBBF24;
+  --ink: #0F172A; --ink-2: #334155; --muted: #64748B; --line: #E2E8F0; --line-2: #F1F5F9;
+  --bg: #F5F6FB; --card: #FFFFFF;
+  --green: #16A34A; --green-l: #DCFCE7; --red: #DC2626; --red-l: #FEE2E2; --teal: #0D9488; --teal-l: #CCFBF1;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Cairo, sans-serif; direction: rtl; color: var(--ink); -webkit-font-smoothing: antialiased; }
+.num { direction: ltr; unicode-bidi: isolate; font-variant-numeric: tabular-nums; }
+.ltr { direction: ltr; unicode-bidi: isolate; }
+
+.sb { height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 6px 30px 0 34px; direction: ltr; font-weight: 700; font-size: 16px; letter-spacing: -.01em; }
+.sb-icons { display: flex; gap: 6px; align-items: center; }
+
+html, body { width: 390px; height: 844px; overflow: hidden; background: var(--bg); }
+
+body { --b1: #4F46E5; --b2: #312E81; --bl: #EEF2FF; --bm: #C7D2FE; position: relative; }
+.hero { background: radial-gradient(260px 200px at 10% 0%, rgba(255,255,255,.16), transparent 70%), linear-gradient(160deg, var(--b1), var(--b2));
+  color: #fff; padding-bottom: 62px; border-radius: 0 0 30px 30px; }
+.top { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px 0; }
+.who { display: flex; align-items: center; gap: 10px; }
+.av { width: 44px; height: 44px; border-radius: 14px; background: rgba(255,255,255,.18); border: 1.5px solid rgba(255,255,255,.35);
+  display: grid; place-items: center; font-weight: 800; font-size: 14px; }
+.who b { display: block; font-size: 16px; font-weight: 800; line-height: 1.3; }
+.who small { display: block; font-size: 12px; opacity: .8; font-weight: 600; }
+.bell { position: relative; width: 42px; height: 42px; border-radius: 14px; background: rgba(255,255,255,.12); display: grid; place-items: center; }
+.bell i { position: absolute; top: 9px; right: 10px; width: 9px; height: 9px; border-radius: 50%; background: #FBBF24; border: 2px solid var(--b1); }
+.hello { padding: 16px 20px 0; }
+.hello h1 { font-size: 26px; font-weight: 800; line-height: 1.25; }
+.hello p { font-size: 14px; opacity: .85; font-weight: 600; margin-top: 2px; }
+main { padding: 0 16px; margin-top: -48px; }
+.card { background: #fff; border-radius: 20px; box-shadow: 0 1px 2px rgba(15,23,42,.05), 0 8px 24px rgba(15,23,42,.07); }
+.resume { display: flex; gap: 14px; padding: 12px; align-items: center; }
+.thumb { position: relative; width: 96px; height: 96px; border-radius: 16px; overflow: hidden; flex: none; }
+.pl { position: absolute; left: 7px; top: 7px; width: 32px; height: 32px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 4px 12px rgba(0,0,0,.25); }
+.ri { flex: 1; min-width: 0; }
+.ri small { font-size: 12px; color: var(--b1); font-weight: 800; }
+.ri b { display: block; font-size: 16px; font-weight: 800; line-height: 1.35; }
+.mu { font-size: 12px; color: var(--muted); font-weight: 600; }
+.bar { height: 7px; border-radius: 4px; background: var(--line-2); margin: 8px 0 4px; overflow: hidden; }
+.bar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--b1), var(--b2)); margin-right: 0; }
+.lf { font-size: 11.5px; color: var(--muted); font-weight: 700; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0; }
+.st { background: #fff; border-radius: 16px; padding: 10px 8px; text-align: center; box-shadow: 0 1px 2px rgba(15,23,42,.05); border: 1px solid var(--line-2); }
+.st b { display: block; font-size: 20px; font-weight: 800; color: var(--ink); line-height: 1.3; }
+.st span { font-size: 11.5px; color: var(--muted); font-weight: 700; }
+.st.kid { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.exam { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1.5px solid #FDE68A; background: linear-gradient(90deg, #FFFBEB, #fff); box-shadow: none; }
+.ex-ic { width: 44px; height: 44px; border-radius: 14px; background: #FEF3C7; display: grid; place-items: center; flex: none; }
+.ex-t { flex: 1; } .ex-t b { display: block; font-size: 15px; font-weight: 800; line-height: 1.4; } .ex-t small { display: block; font-size: 12px; color: var(--muted); font-weight: 700; line-height: 1.5; }
+.rem { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 800; color: var(--b1); background: var(--bl); border-radius: 12px; padding: 6px 10px; }
+.sec { display: flex; justify-content: space-between; align-items: baseline; margin: 14px 4px 8px; }
+.sec b { font-size: 17px; font-weight: 800; } .sec span { font-size: 13px; color: var(--b1); font-weight: 800; }
+.courses { display: flex; gap: 12px; margin-left: -16px; }
+.cc { width: 206px; flex: none; border-radius: 18px; overflow: hidden; background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.05); border: 1px solid var(--line-2); }
+.cc-top { height: 78px; padding: 14px; color: #fff; background: linear-gradient(140deg, var(--b1), var(--b2)); display: flex; flex-direction: column; justify-content: space-between; }
+.cc.locked .cc-top { background: linear-gradient(140deg, #475569, #1E293B); }
+.cc-top b { font-size: 15px; font-weight: 800; }
+.cc-foot { padding: 10px 14px; font-size: 12px; font-weight: 700; }
+.cc-foot span { display: inline-flex; align-items: center; gap: 5px; }
+.ok { color: #15803D; } .lk { color: #B45309; }
+
+.bn { position: absolute; bottom: 0; left: 0; right: 0; height: 86px; background: #fff; border-top: 1px solid var(--line);
+  display: flex; justify-content: space-around; padding: 10px 6px 0; }
+.nv { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; color: #94A3B8; font-weight: 600; width: 70px; }
+.nv.on { color: var(--b1, var(--brand)); font-weight: 800; }
+.hi { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; background: #0F172A; }
+</style></head><body>
+<div class="hero">
+  
+<div class="sb" style="color:#fff">
+  <span class="sb-time">9:41</span>
+  <span class="sb-icons">
+    <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#fff"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#fff"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#fff"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#fff"/></svg>
+    <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 11.5l2.3-2.6a3.3 3.3 0 0 0-4.6 0z" fill="#fff"/><path d="M3.9 7.1a5.9 5.9 0 0 1 8.2 0l1.4-1.6a8 8 0 0 0-11 0z" fill="#fff"/><path d="M1.4 4.3a9.6 9.6 0 0 1 13.2 0L16 2.7a11.7 11.7 0 0 0-16 0z" fill="#fff"/></svg>
+    <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#fff" opacity=".4"/><rect x="2" y="2" width="17" height="9" rx="2" fill="#fff"/><path d="M24.5 4.5v4c.8-.3 1.4-1.1 1.4-2s-.6-1.7-1.4-2z" fill="#fff" opacity=".45"/></svg>
+  </span>
+</div>
+  <div class="top">
+    <div class="who"><div class="av">م.س</div><div><b>أ. محمد سامي</b><small>فيزياء · تالتة ثانوي</small></div></div>
+    <div class="bell"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" style="color:#fff;flex:none"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.268 21a2 2 0 0 0 3.464 0m-10.47-5.674A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg><i></i></div>
+  </div>
+  <div class="hello"><h1>أهلاً يا يوسف</h1><p>فاضلك 3 دروس وتخلّص الفصل الأول</p></div>
+</div>
+<main>
+  <div class="card resume">
+    <div class="thumb"><svg width="96" height="96" viewBox="0 0 96 96"><rect width="96" height="96" fill="#1d3b31"/>
+<g fill="none" stroke="#e8f5e9" stroke-width="2" stroke-linecap="round" opacity=".9">
+<path d="M18 30h18M42 30h36M78 30v34H18V30"/><path d="M36 22v16M42 25v10"/>
+<path d="M40 64l4-6 4 12 4-12 4 12 4-6"/></g>
+<text x="48" y="86" fill="#fde68a" font-family="Cairo" font-weight="800" font-size="14" text-anchor="middle">V = I R</text></svg><span class="pl"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" style="color:#4F46E5;flex:none"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.6" d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></svg></span></div>
+    <div class="ri">
+      <small>كمّل من حيث وقفت</small>
+      <b>قانون أوم — الجزء التاني</b>
+      <span class="mu">الفصل الأول: التيار الكهربي</span>
+      <div class="bar"><i style="width:62%"></i></div>
+      <span class="lf">فاضل 9 دقايق</span>
+    </div>
+  </div>
+  <div class="stats"><div class="st"><b class="num">12</b><span>درس خلّصتهم</span></div><div class="st"><b class="num">85%</b><span>متوسط درجاتك</span></div><div class="st"><b class="num">14</b><span>ترتيبك في الدفعة</span></div></div>
+  <div class="card exam">
+    <div class="ex-ic"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" style="color:#B45309;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14l2 2l4-4"/></g></svg></div>
+    <div class="ex-t"><b>امتحان الفصل الأول</b><small>الخميس 8:00 م</small><small>30 دقيقة · 20 سؤال</small></div>
+    <span class="rem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" style="color:#4F46E5;flex:none"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.268 21a2 2 0 0 0 3.464 0M22 8c0-2.3-.8-4.3-2-6M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326M4 2C2.8 3.7 2 5.7 2 8"/></svg> فكّرني</span>
+  </div>
+  <div class="sec"><b>كورساتك</b><span>الكل</span></div>
+  <div class="courses"><div class="cc">
+  <div class="cc-top"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="26" height="26" style="color:#fff;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="1"/><path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9c-4.54-4.52-9.87-6.54-11.9-4.5c-2.04 2.03-.02 7.36 4.5 11.9c4.54 4.52 9.87 6.54 11.9 4.5"/><path d="M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9c-2.03-2.04-7.36-.02-11.9 4.5c-4.52 4.54-6.54 9.87-4.5 11.9c2.03 2.04 7.36.02 11.9-4.5"/></g></svg><b>شهر نوفمبر</b></div>
+  <div class="cc-foot"><span class="ok"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" style="color:#16A34A;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m16 9l-5.5 5.5L8 12"/></g></svg> صالح لحد 30 نوفمبر</span></div></div><div class="cc locked">
+  <div class="cc-top"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="26" height="26" style="color:#fff;flex:none"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.914 4a1.5 1.5 0 0 0-2.474-1.561l-9 9A1.5 1.5 0 0 0 5.5 14h4.002a.5.5 0 0 1 .471.666L8.086 20a1.5 1.5 0 0 0 2.475 1.56l9-9A1.5 1.5 0 0 0 18.5 10h-3.997a.5.5 0 0 1-.472-.667z"/></svg><b>مراجعة الفصل الأول</b></div>
+  <div class="cc-foot"><span class="lk"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" style="color:#B45309;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></g></svg> افتحه بكود</span></div></div></div>
+</main>
+<nav class="bn"><div class="nv on"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" style="color:#4F46E5;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></g></svg><span>الرئيسية</span></div><div class="nv"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" style="color:#94A3B8;flex:none"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m16 6l4 14M12 6v14M8 8v12M4 4v16"/></svg><span>كورساتي</span></div><div class="nv"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" style="color:#94A3B8;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14l2 2l4-4"/></g></svg><span>الامتحانات</span></div><div class="nv"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" style="color:#94A3B8;flex:none"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092a10 10 0 1 0-4.777-4.719"/></svg><span>أسئلتي</span></div><div class="nv"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" style="color:#94A3B8;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></g></svg><span>حسابي</span></div></nav><div class="hi"></div></body></html>

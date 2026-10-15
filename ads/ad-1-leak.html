@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>ad-1-leak</title>
+<style>
+@font-face { font-family: Cairo; src: local('Cairo'); }
+:root {
+  --brand: #4F46E5; --brand-d: #3730A3; --brand-dd: #1E1B4B; --brand-l: #EEF2FF; --brand-ll: #E0E7FF; --brand-m: #A5B4FC;
+  --amber: #F59E0B; --amber-d: #B45309; --amber-l: #FEF3C7; --amber-m: #FBBF24;
+  --ink: #0F172A; --ink-2: #334155; --muted: #64748B; --line: #E2E8F0; --line-2: #F1F5F9;
+  --bg: #F5F6FB; --card: #FFFFFF;
+  --green: #16A34A; --green-l: #DCFCE7; --red: #DC2626; --red-l: #FEE2E2; --teal: #0D9488; --teal-l: #CCFBF1;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Cairo, sans-serif; direction: rtl; color: var(--ink); -webkit-font-smoothing: antialiased; }
+.num { direction: ltr; unicode-bidi: isolate; font-variant-numeric: tabular-nums; }
+.ltr { direction: ltr; unicode-bidi: isolate; }
+
+.sb { height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 6px 30px 0 34px; direction: ltr; font-weight: 700; font-size: 16px; letter-spacing: -.01em; }
+.sb-icons { display: flex; gap: 6px; align-items: center; }
+
+html, body { width: 1080px; height: 1350px; overflow: hidden; background: #0B0920; }
+
+.phone { position: absolute; border-radius: 9% / 4.3%; background: #0B0B12; padding: 2.9%; box-shadow: 0 50px 90px rgba(10,8,40,.45), 0 0 0 2px #2b2a3a inset; }
+.phone img { display: block; width: 100%; border-radius: 7.4% / 3.45%; }
+.phone .island { position: absolute; top: 3.1%; left: 50%; transform: translateX(-50%); width: 29%; height: 3.3%; border-radius: 30px; background: #000; }
+
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand b { display: block; font-size: 44px; font-weight: 800; line-height: 1; }
+.brand small { display: block; font-size: 13px; letter-spacing: .4em; font-weight: 800; direction: ltr; text-align: right; margin-top: 7px; }
+.brand.dark b { color: #fff; } .brand.dark small { color: #A5B4FC; }
+.brand.light b { color: #1E1B4B; } .brand.light small { color: #6366F1; }
+.cta { display: inline-flex; align-items: center; gap: 14px; height: 92px; padding: 0 44px; border-radius: 26px; font-size: 36px; font-weight: 800; }
+.cta.amber { background: #F59E0B; color: #1E1B4B; box-shadow: 0 16px 34px rgba(245,158,11,.35); }
+.cta.indigo { background: #4F46E5; color: #fff; box-shadow: 0 16px 34px rgba(79,70,229,.35); }
+.chip { display: inline-flex; align-items: center; gap: 10px; border-radius: 999px; font-weight: 800; }
+
+body { 
+background: radial-gradient(900px 700px at 15% 70%, rgba(99,102,241,.45), transparent 60%),
+            radial-gradient(700px 600px at 100% 0%, rgba(245,158,11,.16), transparent 60%),
+            linear-gradient(180deg, #14113A, #0B0920);
+ color: #fff; position: relative; }
+body::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.05) 1.2px, transparent 1.3px); background-size: 26px 26px; pointer-events: none; }
+.top { position: absolute; top: 64px; right: 72px; left: 72px; display: flex; justify-content: space-between; align-items: center; }
+.tag { font-size: 26px; color: #FDE68A; background: rgba(251,191,36,.12); border: 1.5px solid rgba(251,191,36,.35); padding: 10px 22px; }
+h1 { position: absolute; top: 190px; right: 72px; font-size: 96px; font-weight: 900; line-height: 1.12; letter-spacing: -.01em; }
+h1 em { font-style: normal; color: #FBBF24; }
+.sub { position: absolute; top: 418px; right: 72px; font-size: 36px; font-weight: 600; line-height: 1.5; color: #E0E7FF; }
+.sub b { color: #fff; font-weight: 800; }
+.lens { position: absolute; border-radius: 28px; border: 4px solid #FBBF24; box-shadow: 0 30px 60px rgba(0,0,0,.45), 0 0 0 10px rgba(251,191,36,.12); }
+.link { position: absolute; inset: 0; }
+.lens-cap { position: absolute; top: 836px; right: 72px; width: 504px; justify-content: center; display: flex; align-items: center; gap: 12px; font-size: 30px; font-weight: 800; color: #FDE68A; }
+.pts { position: absolute; top: 930px; right: 80px; width: 480px; list-style: none; display: grid; gap: 22px; }
+.pts li { display: flex; gap: 16px; align-items: flex-start; font-size: 29px; font-weight: 700; color: #E0E7FF; line-height: 1.45; }
+.pts svg { margin-top: 4px; }
+.bottom { position: absolute; bottom: 64px; right: 72px; display: flex; }
+.note { font-size: 26px; font-weight: 700; color: #A5B4FC; text-align: left; line-height: 1.4; }
+</style></head><body>
+<div class="top">
+<div class="brand dark"><svg width="62" height="62" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="منهجي">
+  <defs>
+    <linearGradient id="mh-g-l1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#3730A3"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#mh-g-l1)"/>
+  <path d="M32 20.5c-5.2-3.7-11.8-4.7-19.5-3.1v27.4c7.7-1.6 14.3-.6 19.5 3.1z" fill="#fff"/>
+  <path d="M32 20.5c5.2-3.7 11.8-4.7 19.5-3.1v27.4c-7.7-1.6-14.3-.6-19.5 3.1z" fill="#C7D2FE"/>
+  <path d="M27.6 26.6v13.3c0 1 1.1 1.6 1.9 1.1l10.6-6.7c.8-.5.8-1.6 0-2.1l-10.6-6.7c-.8-.5-1.9.1-1.9 1.1z" fill="#F59E0B"/>
+</svg>
+<div><b>منهجي</b><small>MANHAGY</small></div></div><span class="chip tag"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="26" height="26" style="color:#FBBF24;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0zM22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></g></svg> للمدرسين والسناتر</span></div>
+<h1>فيديوهاتك بتتسرّب<br><em>على تليجرام؟</em></h1>
+<p class="sub">مع منهجي، كل فيديو عليه <b>اسم الطالب ورقمه</b>.<br>لو اتسرّب… تعرف من مين.</p>
+<div class="phone " style="width:400px;left:60px;top:610px;transform:rotate(-4deg)"><img src="../out/screens/player.png" alt=""><span class="island"></span></div>
+<svg class="link" width="1080" height="1350"><path d="M196 818 C 300 800, 420 736, 504 722" fill="none" stroke="#FBBF24" stroke-width="4" stroke-dasharray="2 10" stroke-linecap="round"/><circle cx="194" cy="819" r="9" fill="#FBBF24"/></svg>
+<div class="lens" style="left:504px;top:652px;width:504px;height:140px;background-image:url(../out/screens/player.png);background-size:878px auto;background-position:-45px -402px"></div>
+<p class="lens-cap"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30" style="color:#FBBF24;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2m10 0h2a2 2 0 0 1 2 2v2m0 10v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="1"/><path d="M18.944 12.33a1 1 0 0 0 0-.66a7.5 7.5 0 0 0-13.888 0a1 1 0 0 0 0 .66a7.5 7.5 0 0 0 13.888 0"/></g></svg> اسمه ورقمه بيتحرّك على الفيديو</p>
+<ul class="pts">
+  <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30" style="color:#A5B4FC;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></g></svg><span>لينك الفيديو بيقفل بعد دقايق، ومفيش تحميل</span></li>
+  <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30" style="color:#A5B4FC;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></g></svg><span>جهازين بالكتير لكل طالب</span></li>
+  <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30" style="color:#A5B4FC;flex:none"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.268 21a2 2 0 0 0 3.464 0M22 8c0-2.3-.8-4.3-2-6M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326M4 2C2.8 3.7 2 5.7 2 8"/></svg><span>تنبيه لو الحساب اتفتح من مكانين</span></li>
+</ul>
+<div class="bottom"><span class="cta amber">احجز مكانك في أول دفعة <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="34" height="34" style="color:#1E1B4B;flex:none"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.6" d="m12 19l-7-7l7-7m7 7H5"/></svg></span></div>
+</body></html>

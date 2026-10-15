@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>redeem</title>
+<style>
+@font-face { font-family: Cairo; src: local('Cairo'); }
+:root {
+  --brand: #4F46E5; --brand-d: #3730A3; --brand-dd: #1E1B4B; --brand-l: #EEF2FF; --brand-ll: #E0E7FF; --brand-m: #A5B4FC;
+  --amber: #F59E0B; --amber-d: #B45309; --amber-l: #FEF3C7; --amber-m: #FBBF24;
+  --ink: #0F172A; --ink-2: #334155; --muted: #64748B; --line: #E2E8F0; --line-2: #F1F5F9;
+  --bg: #F5F6FB; --card: #FFFFFF;
+  --green: #16A34A; --green-l: #DCFCE7; --red: #DC2626; --red-l: #FEE2E2; --teal: #0D9488; --teal-l: #CCFBF1;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Cairo, sans-serif; direction: rtl; color: var(--ink); -webkit-font-smoothing: antialiased; }
+.num { direction: ltr; unicode-bidi: isolate; font-variant-numeric: tabular-nums; }
+.ltr { direction: ltr; unicode-bidi: isolate; }
+
+.sb { height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 6px 30px 0 34px; direction: ltr; font-weight: 700; font-size: 16px; letter-spacing: -.01em; }
+.sb-icons { display: flex; gap: 6px; align-items: center; }
+
+html, body { width: 390px; height: 844px; overflow: hidden; background: #F8FAFC; }
+
+.kard { display: flex; border-radius: 18px; overflow: hidden; background: #fff; box-shadow: 0 10px 30px rgba(15,23,42,.14); border: 1px solid #E2E8F0; }
+.k-side { width: 14px; background: repeating-linear-gradient(180deg, #4F46E5 0 14px, #6366F1 14px 28px); flex: none; }
+.k-body { flex: 1; padding: 12px 14px 10px; }
+.k-h { display: flex; gap: 10px; align-items: center; }
+.k-av { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(140deg, #6366F1, #312E81); color: #fff; font-weight: 800; font-size: 11.5px; display: grid; place-items: center; }
+.k-h b { display: block; font-size: 13.5px; font-weight: 800; line-height: 1.3; } .k-h small { font-size: 11.5px; color: #64748B; font-weight: 700; }
+.k-code { margin: 10px 0 8px; text-align: center; font-family: 'DejaVu Sans Mono', monospace; font-weight: 700; font-size: 25px; letter-spacing: .06em; color: #1E1B4B;
+  background: #F5F3FF; border: 1.5px dashed #A5B4FC; border-radius: 12px; padding: 4px 0; }
+.k-f { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 11px; color: #64748B; font-weight: 600; }
+.k-f b { color: #3730A3; font-weight: 800; }
+
+body { background: #F8FAFC; position: relative; }
+header { display: flex; align-items: center; justify-content: space-between; padding: 6px 20px 8px; }
+header b { font-size: 17px; font-weight: 800; } header span { width: 22px; }
+.wrap { padding: 8px 20px 0; }
+.cardbox { display: flex; justify-content: center; margin: 2px 0 14px; transform: rotate(-2deg); }
+label { display: block; font-size: 13.5px; font-weight: 800; color: #334155; margin-bottom: 8px; }
+.fld { display: flex; align-items: center; justify-content: space-between; height: 56px; border-radius: 16px; background: #fff; border: 2px solid #16A34A; padding: 0 16px; box-shadow: 0 0 0 4px rgba(22,163,74,.1); }
+.code { font-family: 'DejaVu Sans Mono', monospace; font-size: 20px; font-weight: 700; letter-spacing: .04em; color: #0F172A; }
+.or { display: flex; align-items: center; gap: 12px; color: #94A3B8; font-size: 12.5px; font-weight: 700; margin: 14px 0; }
+.or i { flex: 1; height: 1px; background: #E2E8F0; }
+.scan { display: flex; justify-content: center; align-items: center; gap: 8px; height: 50px; border-radius: 16px; border: 1.5px dashed #A5B4FC; color: #4F46E5; font-weight: 800; font-size: 15px; background: #EEF2FF; }
+.dim { position: absolute; inset: 0; background: rgba(15,23,42,.32); }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; background: #fff; border-radius: 28px 28px 0 0; padding: 10px 22px 34px; text-align: center; box-shadow: 0 -10px 30px rgba(15,23,42,.18); }
+.grab { display: block; width: 40px; height: 5px; border-radius: 3px; background: #E2E8F0; margin: 0 auto 14px; }
+.ok { width: 58px; height: 58px; border-radius: 50%; background: #16A34A; display: grid; place-items: center; margin: 0 auto; box-shadow: 0 0 0 8px #DCFCE7; }
+.sheet h2 { font-size: 24px; font-weight: 800; margin-top: 10px; line-height: 1.4; }
+.lead { font-size: 15px; color: #334155; font-weight: 600; } .lead b { font-weight: 800; color: #0F172A; }
+.rows { margin: 12px 0 10px; background: #F8FAFC; border-radius: 16px; padding: 4px 14px; text-align: right; }
+.rows div { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #EEF2F7; font-size: 14px; }
+.rows div:last-child { border-bottom: 0; }
+.rows span { color: #64748B; font-weight: 600; } .rows b { font-weight: 800; }
+.fine { display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 12.5px; color: #64748B; font-weight: 600; margin-bottom: 14px; }
+.btn { display: flex; justify-content: center; align-items: center; gap: 8px; height: 54px; border-radius: 16px; background: #4F46E5; color: #fff; font-weight: 800; font-size: 16px; box-shadow: 0 8px 18px rgba(79,70,229,.3); }
+.hi { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; background: #0F172A; }
+</style></head><body>
+
+<div class="sb" style="color:#0F172A">
+  <span class="sb-time">9:41</span>
+  <span class="sb-icons">
+    <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#0F172A"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#0F172A"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#0F172A"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#0F172A"/></svg>
+    <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 11.5l2.3-2.6a3.3 3.3 0 0 0-4.6 0z" fill="#0F172A"/><path d="M3.9 7.1a5.9 5.9 0 0 1 8.2 0l1.4-1.6a8 8 0 0 0-11 0z" fill="#0F172A"/><path d="M1.4 4.3a9.6 9.6 0 0 1 13.2 0L16 2.7a11.7 11.7 0 0 0-16 0z" fill="#0F172A"/></svg>
+    <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#0F172A" opacity=".4"/><rect x="2" y="2" width="17" height="9" rx="2" fill="#0F172A"/><path d="M24.5 4.5v4c.8-.3 1.4-1.1 1.4-2s-.6-1.7-1.4-2z" fill="#0F172A" opacity=".45"/></svg>
+  </span>
+</div>
+<header><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" style="color:#334155;flex:none"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7-7l7 7l-7 7"/></svg><b>فعّل كود</b><span></span></header>
+<div class="wrap">
+  <div class="cardbox"><div class="kard" style="width:330px">
+  <div class="k-side"></div>
+  <div class="k-body">
+    <div class="k-h"><div class="k-av">م.س</div><div><b>أ. محمد سامي — فيزياء</b><small>كارت شهر نوفمبر · تالتة ثانوي</small></div></div>
+    <div class="k-code ltr">K7Q4-9MXP-2D</div>
+    <div class="k-f"><span>فعّله على <b class="ltr">mr-mohamed.manhagy.app</b></span><svg width="46" height="46" viewBox="0 0 46 46" fill="#0F172A"><rect x="15.33" y="0.00" width="2.29" height="2.29"/><rect x="17.52" y="0.00" width="2.29" height="2.29"/><rect x="21.90" y="0.00" width="2.29" height="2.29"/><rect x="26.29" y="0.00" width="2.29" height="2.29"/><rect x="28.48" y="0.00" width="2.29" height="2.29"/><rect x="17.52" y="2.19" width="2.29" height="2.29"/><rect x="19.71" y="2.19" width="2.29" height="2.29"/><rect x="21.90" y="2.19" width="2.29" height="2.29"/><rect x="24.10" y="2.19" width="2.29" height="2.29"/><rect x="26.29" y="2.19" width="2.29" height="2.29"/><rect x="15.33" y="4.38" width="2.29" height="2.29"/><rect x="17.52" y="4.38" width="2.29" height="2.29"/><rect x="26.29" y="4.38" width="2.29" height="2.29"/><rect x="15.33" y="6.57" width="2.29" height="2.29"/><rect x="19.71" y="6.57" width="2.29" height="2.29"/><rect x="21.90" y="6.57" width="2.29" height="2.29"/><rect x="24.10" y="6.57" width="2.29" height="2.29"/><rect x="26.29" y="6.57" width="2.29" height="2.29"/><rect x="15.33" y="8.76" width="2.29" height="2.29"/><rect x="21.90" y="8.76" width="2.29" height="2.29"/><rect x="26.29" y="8.76" width="2.29" height="2.29"/><rect x="28.48" y="8.76" width="2.29" height="2.29"/><rect x="15.33" y="10.95" width="2.29" height="2.29"/><rect x="19.71" y="10.95" width="2.29" height="2.29"/><rect x="21.90" y="10.95" width="2.29" height="2.29"/><rect x="26.29" y="10.95" width="2.29" height="2.29"/><rect x="28.48" y="10.95" width="2.29" height="2.29"/><rect x="19.71" y="13.14" width="2.29" height="2.29"/><rect x="0.00" y="15.33" width="2.29" height="2.29"/><rect x="4.38" y="15.33" width="2.29" height="2.29"/><rect x="6.57" y="15.33" width="2.29" height="2.29"/><rect x="10.95" y="15.33" width="2.29" height="2.29"/><rect x="15.33" y="15.33" width="2.29" height="2.29"/><rect x="26.29" y="15.33" width="2.29" height="2.29"/><rect x="35.05" y="15.33" width="2.29" height="2.29"/><rect x="41.62" y="15.33" width="2.29" height="2.29"/><rect x="0.00" y="17.52" width="2.29" height="2.29"/><rect x="10.95" y="17.52" width="2.29" height="2.29"/><rect x="13.14" y="17.52" width="2.29" height="2.29"/><rect x="17.52" y="17.52" width="2.29" height="2.29"/><rect x="19.71" y="17.52" width="2.29" height="2.29"/><rect x="21.90" y="17.52" width="2.29" height="2.29"/><rect x="24.10" y="17.52" width="2.29" height="2.29"/><rect x="26.29" y="17.52" width="2.29" height="2.29"/><rect x="30.67" y="17.52" width="2.29" height="2.29"/><rect x="32.86" y="17.52" width="2.29" height="2.29"/><rect x="35.05" y="17.52" width="2.29" height="2.29"/><rect x="39.43" y="17.52" width="2.29" height="2.29"/><rect x="41.62" y="17.52" width="2.29" height="2.29"/><rect x="6.57" y="19.71" width="2.29" height="2.29"/><rect x="8.76" y="19.71" width="2.29" height="2.29"/><rect x="10.95" y="19.71" width="2.29" height="2.29"/><rect x="17.52" y="19.71" width="2.29" height="2.29"/><rect x="19.71" y="19.71" width="2.29" height="2.29"/><rect x="21.90" y="19.71" width="2.29" height="2.29"/><rect x="24.10" y="19.71" width="2.29" height="2.29"/><rect x="30.67" y="19.71" width="2.29" height="2.29"/><rect x="32.86" y="19.71" width="2.29" height="2.29"/><rect x="35.05" y="19.71" width="2.29" height="2.29"/><rect x="37.24" y="19.71" width="2.29" height="2.29"/><rect x="6.57" y="21.90" width="2.29" height="2.29"/><rect x="17.52" y="21.90" width="2.29" height="2.29"/><rect x="19.71" y="21.90" width="2.29" height="2.29"/><rect x="21.90" y="21.90" width="2.29" height="2.29"/><rect x="26.29" y="21.90" width="2.29" height="2.29"/><rect x="28.48" y="21.90" width="2.29" height="2.29"/><rect x="30.67" y="21.90" width="2.29" height="2.29"/><rect x="32.86" y="21.90" width="2.29" height="2.29"/><rect x="35.05" y="21.90" width="2.29" height="2.29"/><rect x="37.24" y="21.90" width="2.29" height="2.29"/><rect x="39.43" y="21.90" width="2.29" height="2.29"/><rect x="41.62" y="21.90" width="2.29" height="2.29"/><rect x="43.81" y="21.90" width="2.29" height="2.29"/><rect x="0.00" y="24.10" width="2.29" height="2.29"/><rect x="2.19" y="24.10" width="2.29" height="2.29"/><rect x="8.76" y="24.10" width="2.29" height="2.29"/><rect x="10.95" y="24.10" width="2.29" height="2.29"/><rect x="13.14" y="24.10" width="2.29" height="2.29"/><rect x="15.33" y="24.10" width="2.29" height="2.29"/><rect x="17.52" y="24.10" width="2.29" height="2.29"/><rect x="24.10" y="24.10" width="2.29" height="2.29"/><rect x="28.48" y="24.10" width="2.29" height="2.29"/><rect x="30.67" y="24.10" width="2.29" height="2.29"/><rect x="32.86" y="24.10" width="2.29" height="2.29"/><rect x="35.05" y="24.10" width="2.29" height="2.29"/><rect x="39.43" y="24.10" width="2.29" height="2.29"/><rect x="41.62" y="24.10" width="2.29" height="2.29"/><rect x="2.19" y="26.29" width="2.29" height="2.29"/><rect x="6.57" y="26.29" width="2.29" height="2.29"/><rect x="17.52" y="26.29" width="2.29" height="2.29"/><rect x="19.71" y="26.29" width="2.29" height="2.29"/><rect x="21.90" y="26.29" width="2.29" height="2.29"/><rect x="30.67" y="26.29" width="2.29" height="2.29"/><rect x="32.86" y="26.29" width="2.29" height="2.29"/><rect x="2.19" y="28.48" width="2.29" height="2.29"/><rect x="6.57" y="28.48" width="2.29" height="2.29"/><rect x="8.76" y="28.48" width="2.29" height="2.29"/><rect x="10.95" y="28.48" width="2.29" height="2.29"/><rect x="13.14" y="28.48" width="2.29" height="2.29"/><rect x="15.33" y="28.48" width="2.29" height="2.29"/><rect x="21.90" y="28.48" width="2.29" height="2.29"/><rect x="30.67" y="28.48" width="2.29" height="2.29"/><rect x="32.86" y="28.48" width="2.29" height="2.29"/><rect x="35.05" y="28.48" width="2.29" height="2.29"/><rect x="37.24" y="28.48" width="2.29" height="2.29"/><rect x="39.43" y="28.48" width="2.29" height="2.29"/><rect x="17.52" y="30.67" width="2.29" height="2.29"/><rect x="24.10" y="30.67" width="2.29" height="2.29"/><rect x="35.05" y="30.67" width="2.29" height="2.29"/><rect x="37.24" y="30.67" width="2.29" height="2.29"/><rect x="41.62" y="30.67" width="2.29" height="2.29"/><rect x="17.52" y="32.86" width="2.29" height="2.29"/><rect x="19.71" y="32.86" width="2.29" height="2.29"/><rect x="26.29" y="32.86" width="2.29" height="2.29"/><rect x="28.48" y="32.86" width="2.29" height="2.29"/><rect x="30.67" y="32.86" width="2.29" height="2.29"/><rect x="37.24" y="32.86" width="2.29" height="2.29"/><rect x="15.33" y="35.05" width="2.29" height="2.29"/><rect x="19.71" y="35.05" width="2.29" height="2.29"/><rect x="21.90" y="35.05" width="2.29" height="2.29"/><rect x="32.86" y="35.05" width="2.29" height="2.29"/><rect x="39.43" y="35.05" width="2.29" height="2.29"/><rect x="41.62" y="35.05" width="2.29" height="2.29"/><rect x="43.81" y="35.05" width="2.29" height="2.29"/><rect x="15.33" y="37.24" width="2.29" height="2.29"/><rect x="19.71" y="37.24" width="2.29" height="2.29"/><rect x="21.90" y="37.24" width="2.29" height="2.29"/><rect x="24.10" y="37.24" width="2.29" height="2.29"/><rect x="28.48" y="37.24" width="2.29" height="2.29"/><rect x="30.67" y="37.24" width="2.29" height="2.29"/><rect x="37.24" y="37.24" width="2.29" height="2.29"/><rect x="17.52" y="39.43" width="2.29" height="2.29"/><rect x="19.71" y="39.43" width="2.29" height="2.29"/><rect x="21.90" y="39.43" width="2.29" height="2.29"/><rect x="24.10" y="39.43" width="2.29" height="2.29"/><rect x="28.48" y="39.43" width="2.29" height="2.29"/><rect x="30.67" y="39.43" width="2.29" height="2.29"/><rect x="37.24" y="39.43" width="2.29" height="2.29"/><rect x="15.33" y="41.62" width="2.29" height="2.29"/><rect x="19.71" y="41.62" width="2.29" height="2.29"/><rect x="21.90" y="41.62" width="2.29" height="2.29"/><rect x="35.05" y="41.62" width="2.29" height="2.29"/><rect x="15.33" y="43.81" width="2.29" height="2.29"/><rect x="19.71" y="43.81" width="2.29" height="2.29"/><rect x="30.67" y="43.81" width="2.29" height="2.29"/><rect x="39.43" y="43.81" width="2.29" height="2.29"/><rect x="41.62" y="43.81" width="2.29" height="2.29"/><rect x="43.81" y="43.81" width="2.29" height="2.29"/><rect x="0.00" y="0.00" width="15.33" height="15.33"/><rect x="2.19" y="2.19" width="10.95" height="10.95" fill="#fff"/><rect x="4.38" y="4.38" width="6.57" height="6.57"/><rect x="30.67" y="0.00" width="15.33" height="15.33"/><rect x="32.86" y="2.19" width="10.95" height="10.95" fill="#fff"/><rect x="35.05" y="4.38" width="6.57" height="6.57"/><rect x="0.00" y="30.67" width="15.33" height="15.33"/><rect x="2.19" y="32.86" width="10.95" height="10.95" fill="#fff"/><rect x="4.38" y="35.05" width="6.57" height="6.57"/></svg></div>
+  </div>
+</div></div>
+  <label>اكتب الكود اللي على الكارت</label>
+  <div class="fld"><span class="ltr code">K7Q4 - 9MXP - 2D</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" style="color:#16A34A;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m16 9l-5.5 5.5L8 12"/></g></svg></div>
+  <div class="or"><i></i><span>أو</span><i></i></div>
+  <div class="scan"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" style="color:#4F46E5;flex:none"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7V5a2 2 0 0 1 2-2h2m10 0h2a2 2 0 0 1 2 2v2m0 10v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2m4-5h10"/></svg> امسح الكارت بالكاميرا</div>
+</div>
+<div class="dim"></div>
+<div class="sheet">
+  <span class="grab"></span>
+  <div class="ok"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="34" height="34" style="color:#fff;flex:none"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 6L9 17l-5-5"/></svg></div>
+  <h2>اتفعّل!</h2>
+  <p class="lead">اتفتح لك <b>شهر نوفمبر — تالتة ثانوي</b></p>
+  <div class="rows">
+    <div><span>صالح لحد</span><b><span class="num">30</span> نوفمبر</b></div>
+    <div><span>فيه</span><b><span class="num">12</span> درس + <span class="num">4</span> امتحانات</b></div>
+  </div>
+  <p class="fine"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" style="color:#64748B;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></g></svg> الكود اتسجّل باسمك، ومينفعش يتستخدم تاني.</p>
+  <span class="btn">ابدأ أول درس <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" style="color:#fff;flex:none"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m12 19l-7-7l7-7m7 7H5"/></svg></span>
+</div>
+<div class="hi"></div></body></html>

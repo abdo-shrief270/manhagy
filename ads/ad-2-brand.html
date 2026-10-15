@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>ad-2-brand</title>
+<style>
+@font-face { font-family: Cairo; src: local('Cairo'); }
+:root {
+  --brand: #4F46E5; --brand-d: #3730A3; --brand-dd: #1E1B4B; --brand-l: #EEF2FF; --brand-ll: #E0E7FF; --brand-m: #A5B4FC;
+  --amber: #F59E0B; --amber-d: #B45309; --amber-l: #FEF3C7; --amber-m: #FBBF24;
+  --ink: #0F172A; --ink-2: #334155; --muted: #64748B; --line: #E2E8F0; --line-2: #F1F5F9;
+  --bg: #F5F6FB; --card: #FFFFFF;
+  --green: #16A34A; --green-l: #DCFCE7; --red: #DC2626; --red-l: #FEE2E2; --teal: #0D9488; --teal-l: #CCFBF1;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Cairo, sans-serif; direction: rtl; color: var(--ink); -webkit-font-smoothing: antialiased; }
+.num { direction: ltr; unicode-bidi: isolate; font-variant-numeric: tabular-nums; }
+.ltr { direction: ltr; unicode-bidi: isolate; }
+
+.sb { height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 6px 30px 0 34px; direction: ltr; font-weight: 700; font-size: 16px; letter-spacing: -.01em; }
+.sb-icons { display: flex; gap: 6px; align-items: center; }
+
+html, body { width: 1080px; height: 1350px; overflow: hidden; background: #fff; }
+
+.phone { position: absolute; border-radius: 9% / 4.3%; background: #0B0B12; padding: 2.9%; box-shadow: 0 50px 90px rgba(10,8,40,.45), 0 0 0 2px #2b2a3a inset; }
+.phone img { display: block; width: 100%; border-radius: 7.4% / 3.45%; }
+.phone .island { position: absolute; top: 3.1%; left: 50%; transform: translateX(-50%); width: 29%; height: 3.3%; border-radius: 30px; background: #000; }
+
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand b { display: block; font-size: 44px; font-weight: 800; line-height: 1; }
+.brand small { display: block; font-size: 13px; letter-spacing: .4em; font-weight: 800; direction: ltr; text-align: right; margin-top: 7px; }
+.brand.dark b { color: #fff; } .brand.dark small { color: #A5B4FC; }
+.brand.light b { color: #1E1B4B; } .brand.light small { color: #6366F1; }
+.cta { display: inline-flex; align-items: center; gap: 14px; height: 92px; padding: 0 44px; border-radius: 26px; font-size: 36px; font-weight: 800; }
+.cta.amber { background: #F59E0B; color: #1E1B4B; box-shadow: 0 16px 34px rgba(245,158,11,.35); }
+.cta.indigo { background: #4F46E5; color: #fff; box-shadow: 0 16px 34px rgba(79,70,229,.35); }
+.chip { display: inline-flex; align-items: center; gap: 10px; border-radius: 999px; font-weight: 800; }
+
+body { background: radial-gradient(800px 600px at 50% 85%, rgba(99,102,241,.22), transparent 65%), linear-gradient(180deg, #F5F3FF, #FFFFFF 55%, #EEF2FF); position: relative; color: #1E1B4B; }
+.top { position: absolute; top: 64px; right: 72px; left: 72px; display: flex; justify-content: space-between; align-items: center; }
+.tag { font-size: 25px; color: #3730A3; background: #fff; border: 1.5px solid #C7D2FE; padding: 10px 22px; box-shadow: 0 6px 16px rgba(79,70,229,.1); }
+h1 { position: absolute; top: 190px; right: 72px; font-size: 96px; font-weight: 900; line-height: 1.12; letter-spacing: -.01em; }
+h1 em { font-style: normal; color: #4F46E5; }
+.sub { position: absolute; top: 420px; right: 72px; font-size: 34px; font-weight: 600; line-height: 1.55; color: #475569; }
+.url { position: absolute; display: inline-flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 800; color: #3730A3; background: #fff; border: 1.5px solid #C7D2FE; border-radius: 999px; padding: 8px 20px; box-shadow: 0 10px 24px rgba(30,27,75,.12); }
+.url.main { font-size: 27px; color: #fff; background: #4F46E5; border-color: #4F46E5; padding: 12px 28px; box-shadow: 0 16px 34px rgba(79,70,229,.4); }
+</style></head><body>
+<div class="top">
+<div class="brand light"><svg width="62" height="62" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="منهجي">
+  <defs>
+    <linearGradient id="mh-g-l2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#3730A3"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#mh-g-l2)"/>
+  <path d="M32 20.5c-5.2-3.7-11.8-4.7-19.5-3.1v27.4c7.7-1.6 14.3-.6 19.5 3.1z" fill="#fff"/>
+  <path d="M32 20.5c5.2-3.7 11.8-4.7 19.5-3.1v27.4c-7.7-1.6-14.3-.6-19.5 3.1z" fill="#C7D2FE"/>
+  <path d="M27.6 26.6v13.3c0 1 1.1 1.6 1.9 1.1l10.6-6.7c.8-.5.8-1.6 0-2.1l-10.6-6.7c-.8-.5-1.9.1-1.9 1.1z" fill="#F59E0B"/>
+</svg>
+<div><b>منهجي</b><small>MANHAGY</small></div></div><span class="chip tag"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="color:#4F46E5;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594zM20 2v4m2-2h-4"/><circle cx="4" cy="20" r="2"/></g></svg> من أولى ابتدائي لحد الجامعة</span></div>
+<h1>منصة وتطبيق باسمك<br><em>لطلابك</em></h1>
+<p class="sub">مش اسم منصة تانية. لينك واحد فيه شرحك وأكوادك<br>وامتحاناتك وتقرير ولي الأمر.</p>
+<div class="phone " style="width:330px;left:96px;top:640px;transform:rotate(-8deg);z-index:1"><img src="../out/screens/home-uni.png" alt=""><span class="island"></span></div>
+<div class="phone " style="width:330px;left:654px;top:640px;transform:rotate(8deg);z-index:1"><img src="../out/screens/home-arabic.png" alt=""><span class="island"></span></div>
+<div class="phone " style="width:380px;left:350px;top:590px;z-index:2"><img src="../out/screens/home-physics.png" alt=""><span class="island"></span></div>
+<div class="urls">
+  <span class="url main" style="left:342px;top:1236px;z-index:3"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="color:#fff;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></g></svg><span class="ltr">mr-mohamed.manhagy.app</span></span>
+</div>
+</body></html>

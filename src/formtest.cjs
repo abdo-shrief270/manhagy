@@ -1,0 +1,24 @@
+const { chromium } = require('playwright');
+(async () => {
+  const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+  const p = await b.newPage({ viewport: { width: 390, height: 844 } });
+  await p.addInitScript(() => { window.__opened = []; window.open = (u) => { window.__opened.push(u); return {}; }; });
+  await p.goto('http://127.0.0.1:8765/?v=leak&utm_source=facebook&utm_campaign=teachers-leak&fbclid=abc', { waitUntil: 'load' });
+  const fab = await p.getAttribute('.wa-fab', 'href');
+  console.log('fab:', decodeURIComponent(fab));
+  await p.click('#lead button[type=submit]');
+  console.log('error visible:', await p.isVisible('#lead .err'), '| focused:', await p.evaluate(() => document.activeElement.name));
+  await p.check('input[value="سنتر"]', { force: true });
+  console.log('subject label:', await p.textContent('[data-subject-label]'));
+  await p.fill('input[name=name]', 'أحمد علي');
+  await p.fill('input[name=subject]', 'سنتر النور — طنطا');
+  await p.selectOption('select[name=stage]', 'ثانوي عام');
+  await p.selectOption('select[name=students]', 'من 500 لـ 2000');
+  await p.selectOption('select[name=now]', 'أكواد ورق');
+  await p.click('#lead button[type=submit]');
+  const opened = await p.evaluate(() => window.__opened);
+  console.log('error visible after fill:', await p.isVisible('#lead .err'));
+  console.log('opened:', opened.length, '\n' + decodeURIComponent(opened[0].split('?text=')[1]));
+  console.log('number:', opened[0].split('?')[0]);
+  await b.close();
+})();

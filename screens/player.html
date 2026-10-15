@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>player</title>
+<style>
+@font-face { font-family: Cairo; src: local('Cairo'); }
+:root {
+  --brand: #4F46E5; --brand-d: #3730A3; --brand-dd: #1E1B4B; --brand-l: #EEF2FF; --brand-ll: #E0E7FF; --brand-m: #A5B4FC;
+  --amber: #F59E0B; --amber-d: #B45309; --amber-l: #FEF3C7; --amber-m: #FBBF24;
+  --ink: #0F172A; --ink-2: #334155; --muted: #64748B; --line: #E2E8F0; --line-2: #F1F5F9;
+  --bg: #F5F6FB; --card: #FFFFFF;
+  --green: #16A34A; --green-l: #DCFCE7; --red: #DC2626; --red-l: #FEE2E2; --teal: #0D9488; --teal-l: #CCFBF1;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Cairo, sans-serif; direction: rtl; color: var(--ink); -webkit-font-smoothing: antialiased; }
+.num { direction: ltr; unicode-bidi: isolate; font-variant-numeric: tabular-nums; }
+.ltr { direction: ltr; unicode-bidi: isolate; }
+
+.sb { height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 6px 30px 0 34px; direction: ltr; font-weight: 700; font-size: 16px; letter-spacing: -.01em; }
+.sb-icons { display: flex; gap: 6px; align-items: center; }
+
+html, body { width: 390px; height: 844px; overflow: hidden; background: #fff; }
+
+body { background: #fff; position: relative; }
+.top { background: #000; }
+.video { position: relative; height: 232px; overflow: hidden; }
+.board { position: absolute; inset: 0; width: 100%; height: 100%; }
+.wm { position: absolute; top: 138px; left: 34px; transform: rotate(-5deg); color: rgba(255,255,255,.55); font-size: 15px; font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0,0,0,.35); white-space: nowrap; letter-spacing: .01em; }
+.tag { position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 4px; background: rgba(0,0,0,.35); color: #fff;
+  font-size: 11px; font-weight: 800; border-radius: 10px; padding: 3px 8px; backdrop-filter: blur(4px); }
+.ctl { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 14px 10px; background: linear-gradient(transparent, rgba(0,0,0,.7)); direction: ltr; }
+.prog { position: relative; height: 4px; border-radius: 2px; background: rgba(255,255,255,.3); margin-bottom: 9px; }
+.prog i { position: absolute; left: 0; top: 0; bottom: 0; width: 52%; border-radius: 2px; background: #F59E0B; }
+.prog b { position: absolute; left: 52%; top: 50%; width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; border-radius: 50%; background: #fff; }
+.row { display: flex; align-items: center; gap: 12px; color: #fff; }
+.t { font-size: 13px; font-weight: 700; } .sp { flex: 1; }
+.spd { font-size: 12px; font-weight: 800; border: 1.5px solid rgba(255,255,255,.7); border-radius: 7px; padding: 0 5px; }
+.sheet { padding: 16px 18px 0; }
+.sheet h1 { font-size: 20px; font-weight: 800; line-height: 1.35; }
+.sub { font-size: 12.5px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+.chips { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+.ch { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 800; color: #334155; background: #F1F5F9; border-radius: 999px; padding: 5px 11px; }
+.ch.amber { background: #FEF3C7; color: #92400E; }
+.note { display: flex; align-items: center; gap: 10px; background: #EEF2FF; color: #3730A3; border-radius: 14px; padding: 10px 12px; font-size: 13px; font-weight: 700; }
+.lh { display: flex; justify-content: space-between; align-items: baseline; margin: 16px 2px 6px; }
+.lh b { font-size: 16px; font-weight: 800; } .lh span { font-size: 12.5px; color: var(--muted); font-weight: 700; }
+.ls { display: flex; align-items: center; gap: 12px; padding: 9px 4px; border-bottom: 1px solid var(--line-2); }
+.ls .n { width: 26px; height: 26px; border-radius: 9px; background: #F1F5F9; color: #64748B; display: grid; place-items: center; font-size: 12.5px; font-weight: 800; flex: none; }
+.lt { flex: 1; } .lt b { display: block; font-size: 14px; font-weight: 700; line-height: 1.35; } .lt small { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+.ls.now { background: #EEF2FF; border-radius: 14px; border-bottom-color: transparent; padding: 9px 10px; margin: 2px -6px; }
+.ls.now .n { background: #4F46E5; color: #fff; } .ls.now b { color: #3730A3; font-weight: 800; }
+.ls.quiz small { color: #B45309; font-weight: 700; }
+.ls.lock b { color: #94A3B8; }
+.eq { display: flex; gap: 2px; align-items: flex-end; height: 16px; width: 20px; justify-content: center; }
+.eq i { width: 4px; border-radius: 2px; background: #4F46E5; }
+.eq i:nth-child(1) { height: 9px; } .eq i:nth-child(2) { height: 16px; } .eq i:nth-child(3) { height: 12px; }
+.hi { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; background: #0F172A; }
+</style></head><body>
+<div class="top">
+  
+<div class="sb" style="color:#fff">
+  <span class="sb-time">9:41</span>
+  <span class="sb-icons">
+    <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#fff"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#fff"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#fff"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#fff"/></svg>
+    <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 11.5l2.3-2.6a3.3 3.3 0 0 0-4.6 0z" fill="#fff"/><path d="M3.9 7.1a5.9 5.9 0 0 1 8.2 0l1.4-1.6a8 8 0 0 0-11 0z" fill="#fff"/><path d="M1.4 4.3a9.6 9.6 0 0 1 13.2 0L16 2.7a11.7 11.7 0 0 0-16 0z" fill="#fff"/></svg>
+    <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="#fff" opacity=".4"/><rect x="2" y="2" width="17" height="9" rx="2" fill="#fff"/><path d="M24.5 4.5v4c.8-.3 1.4-1.1 1.4-2s-.6-1.7-1.4-2z" fill="#fff" opacity=".45"/></svg>
+  </span>
+</div>
+  <div class="video">
+    <svg class="board" viewBox="0 0 390 232" style="direction:ltr">
+      <defs><radialGradient id="bg" cx=".55" cy=".45" r=".8"><stop offset="0" stop-color="#25493d"/><stop offset="1" stop-color="#132a23"/></radialGradient></defs>
+      <rect width="390" height="232" fill="url(#bg)"/>
+      <g fill="none" stroke="#ecfdf5" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" opacity=".85">
+        <path d="M246 54h40M302 54h62v104H246V54"/>
+        <path d="M286 40v28M302 46v16"/>
+        <path d="M282 158l6-10 8 20 8-20 8 20 6-10"/>
+        <circle cx="364" cy="106" r="13"/>
+      </g>
+      <text x="364" y="112" fill="#ecfdf5" font-family="Cairo" font-weight="800" font-size="15" text-anchor="middle" opacity=".9">A</text>
+      <text x="300" y="138" fill="#ecfdf5" font-family="Cairo" font-weight="800" font-size="15" text-anchor="middle" opacity=".85">R</text>
+      <text x="30" y="80" fill="#fde68a" font-family="Cairo" font-weight="800" font-size="42" opacity=".95">V = I R</text>
+      <text x="34" y="116" fill="#ecfdf5" font-family="Cairo" font-weight="700" font-size="17" opacity=".85">I = 2 A ,  R = 10 Ω</text>
+    </svg>
+    <span class="wm">يوسف أحمد · <span class="num">01012•••487</span></span>
+    <span class="tag"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="13" height="13" style="color:#fff;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12l2 2l4-4"/></g></svg> محمي</span>
+    <div class="ctl">
+      <div class="prog"><i></i><b></b></div>
+      <div class="row">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" style="color:#fff;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><rect width="5" height="18" x="14" y="3" rx="1"/><rect width="5" height="18" x="5" y="3" rx="1"/></g></svg>
+        <span class="num t">12:40 / 24:10</span>
+        <span class="sp"></span>
+        <span class="num spd">1.25x</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" style="color:#fff;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0a2.34 2.34 0 0 0 3.319 1.915a2.34 2.34 0 0 1 2.33 4.033a2.34 2.34 0 0 0 0 3.831a2.34 2.34 0 0 1-2.33 4.033a2.34 2.34 0 0 0-3.319 1.915a2.34 2.34 0 0 1-4.659 0a2.34 2.34 0 0 0-3.32-1.915a2.34 2.34 0 0 1-2.33-4.033a2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></g></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" style="color:#fff;flex:none"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/></svg>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="sheet">
+  <h1>قانون أوم — الجزء التاني</h1>
+  <p class="sub">الفصل الأول: التيار الكهربي وقانون أوم · أ. محمد سامي</p>
+  <div class="chips">
+    <span class="ch amber"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" style="color:#B45309;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M2.062 12.348a1 1 0 0 1 0-.696a10.75 10.75 0 0 1 19.876 0a1 1 0 0 1 0 .696a10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></g></svg> باقي مشاهدتين</span>
+    <span class="ch"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" style="color:#475569;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></g></svg> <span class="num">24</span> دقيقة</span>
+    <span class="ch"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" style="color:#475569;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10 9H8m8 4H8m8 4H8"/></g></svg> ملزمة PDF</span>
+  </div>
+  <div class="note"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" style="color:#4F46E5;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12l2 2l4-4"/></g></svg><span>الفيديو عليه اسمك ورقمك. لو اتشارك، الحساب بيتقفل.</span></div>
+  <div class="lh"><b>دروس الفصل</b><span><span class="num">4</span> من <span class="num">7</span></span></div>
+  <div class="list"><div class="ls done"><span class="n num">1</span><div class="lt"><b>شدة التيار الكهربي</b><small>18 د</small></div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" style="color:#16A34A;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m16 9l-5.5 5.5L8 12"/></g></svg></div><div class="ls done"><span class="n num">2</span><div class="lt"><b>فرق الجهد والمقاومة</b><small>21 د</small></div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" style="color:#16A34A;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m16 9l-5.5 5.5L8 12"/></g></svg></div><div class="ls done"><span class="n num">3</span><div class="lt"><b>قانون أوم — الجزء الأول</b><small>19 د</small></div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" style="color:#16A34A;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m16 9l-5.5 5.5L8 12"/></g></svg></div><div class="ls now"><span class="n num">4</span><div class="lt"><b>قانون أوم — الجزء التاني</b><small>24 د</small></div><span class="eq"><i></i><i></i><i></i></span></div><div class="ls quiz"><span class="n num">5</span><div class="lt"><b>امتحان قصير: قانون أوم</b><small>لازم تنجح عشان يفتح اللي بعده</small></div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="21" height="21" style="color:#B45309;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14l2 2l4-4"/></g></svg></div><div class="ls lock"><span class="n num">6</span><div class="lt"><b>توصيل المقاومات على التوالي</b><small>22 د</small></div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" style="color:#94A3B8;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></g></svg></div><div class="ls lock"><span class="n num">7</span><div class="lt"><b>توصيل المقاومات على التوازي</b><small>26 د</small></div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" style="color:#94A3B8;flex:none"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></g></svg></div></div>
+</div>
+<div class="hi"></div></body></html>
