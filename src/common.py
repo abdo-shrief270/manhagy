@@ -4,7 +4,7 @@ import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # The product's domain, written into every screen, ad and page (teacher sites are {slug}.DOMAIN).
-DOMAIN = os.environ.get('MANHAGY_DOMAIN', 'manhagy.app')
+DOMAIN = os.environ.get('MANHAGY_DOMAIN', 'manhagy.online')
 LUCIDE = json.load(open('/home/user/muhasebi-egypt/apps/web/node_modules/@iconify-json/lucide/icons.json'))
 LOGO_MARK = open(os.path.join(ROOT, 'site/assets/logo-mark.svg')).read()
 

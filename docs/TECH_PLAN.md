@@ -11,7 +11,7 @@
 | الـ Backend | Laravel 13 + PHP 8.4، Modular Monolith | نفس محاسبي: الفريق عارفه، والـ Modules والـ Events والـ Billing جاهزين |
 | قاعدة البيانات | PostgreSQL 17 + Redis | نفس محاسبي |
 | لوحة المدرس والمساعدين | Nuxt 4 SPA + Nuxt UI 4 | نفس محاسبي |
-| منصة الطالب | Nuxt 4 **SSR** على subdomain لكل مدرس (`ahmed.manhagy.app`) + دومين خاص | زي متجر محاسبي: صفحات الكورسات بتظهر في جوجل، والطالب بيشوف اسم المدرس |
+| منصة الطالب | Nuxt 4 **SSR** على subdomain لكل مدرس (`ahmed.manhagy.online`) + دومين خاص | زي متجر محاسبي: صفحات الكورسات بتظهر في جوجل، والطالب بيشوف اسم المدرس |
 | تطبيق الطالب | PWA في الأول، وبعدين Flutter (white-label لكل مدرس) | Flutter عشان منع تصوير الشاشة والتحميل المتشفّر |
 | الفيديو | **خدمة فيديو جاهزة** خلف واجهة (`VideoHost` contract)، والبديل الذاتي لاحقاً | الفيديو أصعب وأغلى جزء، والخدمة الجاهزة بتوفّر شهور |
 | الريل تايم | Reverb | نفس محاسبي (تنبيهات، امتحانات لايف، حضور السنتر) |
@@ -50,9 +50,9 @@ manhagy/
   apps/
     api/        Laravel — app/Modules/*, app/Support/*
     web/        Nuxt SPA — لوحة المدرس والمساعدين والسنتر
-    learn/      Nuxt SSR — منصة الطالب ({slug}.manhagy.app + دومين خاص)
+    learn/      Nuxt SSR — منصة الطالب ({slug}.manhagy.online + دومين خاص)
     admin/      Nuxt — لوحة المنصة
-    site/       Nuxt static — manhagy.app (تسويق)
+    site/       Nuxt static — manhagy.online (تسويق)
     market/     Nuxt SSR — سوق الكورسات (المرحلة 2)
   mobile/       Flutter — تطبيق الطالب (white-label)
   infra/production/

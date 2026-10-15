@@ -15,7 +15,7 @@
 ---
 
 ## إعلان 1 — «فيديوهاتك بتتسرّب على تليجرام؟»
-**اللينك:** `https://manhagy.app/?v=leak&utm_source=facebook&utm_campaign=leak`
+**اللينك:** `https://manhagy.online/?v=leak&utm_source=facebook&utm_campaign=leak`
 
 **النص الأساسي (قصير):**
 > فيديوهاتك بتتسرّب على تليجرام وبتتباع ببلاش؟
@@ -43,7 +43,7 @@
 ---
 
 ## إعلان 2 — «منصة وتطبيق باسمك لطلابك»
-**اللينك:** `https://manhagy.app/?utm_source=facebook&utm_campaign=brand`
+**اللينك:** `https://manhagy.online/?utm_source=facebook&utm_campaign=brand`
 
 **النص الأساسي:**
 > طلابك بيشوفوا اسم منصة تانية… وانت اللي تعبان؟
@@ -58,7 +58,7 @@
 ---
 
 ## إعلان 3 — «بطّل تراجع سكرينات التحويل»
-**اللينك:** `https://manhagy.app/?v=codes&utm_source=facebook&utm_campaign=codes`
+**اللينك:** `https://manhagy.online/?v=codes&utm_source=facebook&utm_campaign=codes`
 
 **النص الأساسي:**
 > كل ليلة سكرينات تحويلات، وتفتح لكل طالب بإيدك؟

@@ -19,7 +19,7 @@
      gaId: '',                   // Google Analytics 4 (اختياري)
    };
    ```
-2. **الدومين:** كل حاجة مبنية على `manhagy.app` (الصفحة، ولينكات المدرسين في الصور، والإعلانات). لو اشتريت دومين تاني، غيّر `DOMAIN` في `src/common.py` وشغّل أوامر البناء اللي في آخر الملف، أو من غير ما تعدّل الملف:
+2. **الدومين:** كل حاجة مبنية على `manhagy.online` (الصفحة، ولينكات المدرسين في الصور، والإعلانات). لو اشتريت دومين تاني، غيّر `DOMAIN` في `src/common.py` وشغّل أوامر البناء اللي في آخر الملف، أو من غير ما تعدّل الملف:
    ```bash
    cd src && export MANHAGY_DOMAIN=your-domain.net   # وبعدين أوامر البناء
    ```
@@ -30,8 +30,8 @@
 - **Cloudflare Pages** (ببلاش): Workers & Pages ← Create ← Pages ← Upload assets ← ارفع فولدر `site` ← اربط الدومين.
 - **Netlify Drop** (ببلاش): اسحب فولدر `site` على app.netlify.com/drop.
 - **على سيرفرك (المعمول هنا):**
-  1. الدومين: اعمل A record لـ `manhagy.app` و `www` على IP السيرفر.
-  2. على السيرفر (root) مرة واحدة: `./deploy/setup-server.sh manhagy.app you@example.com` — بيعمل موقع nginx + شهادة HTTPS + مستخدم للرفع مفتاحه يقدر يكتب في `/var/www/manhagy` بس، وبيطبع 3 قيم.
+  1. الدومين: اعمل A record لـ `manhagy.online` و `www` على IP السيرفر.
+  2. على السيرفر (root) مرة واحدة: `./deploy/setup-server.sh manhagy.online you@example.com` — بيعمل موقع nginx + شهادة HTTPS + مستخدم للرفع مفتاحه يقدر يكتب في `/var/www/manhagy` بس، وبيطبع 3 قيم.
   3. حط القيم دي في GitHub: Settings ← Secrets and variables ← Actions: `DEPLOY_HOST` و `DEPLOY_USER` و `DEPLOY_KEY`.
   4. أي push على `main` بيغيّر في `site/` بيترفع لوحده (أو Actions ← deploy ← Run workflow).
 

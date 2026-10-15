@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-time setup on the server (run as root): ./setup-server.sh manhagy.app you@example.com
+# One-time setup on the server (run as root): ./setup-server.sh manhagy.online you@example.com
 # Serves /var/www/manhagy through nginx with a Let's Encrypt certificate, and creates a
 # deploy user whose SSH key can only rsync into that folder (GitHub Actions uses it).
 set -euo pipefail
