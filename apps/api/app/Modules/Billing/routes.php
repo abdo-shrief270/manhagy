@@ -3,6 +3,7 @@
 use App\Modules\Billing\Http\Controllers\Admin\AdminAffiliateController;
 use App\Modules\Billing\Http\Controllers\Admin\AdminAuthController;
 use App\Modules\Billing\Http\Controllers\Admin\AdminCouponController;
+use App\Modules\Billing\Http\Controllers\Admin\AdminCurriculumController;
 use App\Modules\Billing\Http\Controllers\Admin\AdminFeedbackController;
 use App\Modules\Billing\Http\Controllers\Admin\AdminModuleController;
 use App\Modules\Billing\Http\Controllers\Admin\AdminMonitoringController;
@@ -78,6 +79,13 @@ Route::prefix('admin')->middleware(AdminGate::class)->group(function (): void {
             Route::patch('features/{key}', 'feature')->where('key', '[a-z_]+\\.[a-z_]+');
             Route::get('shops/{tenant}/modules', 'shop');
             Route::post('shops/{tenant}/modules/{key}', 'setShop')->where('key', '[a-z_]+');
+        });
+
+        Route::controller(AdminCurriculumController::class)->prefix('curriculum')->group(function (): void {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::patch('{node}', 'update')->whereUuid('node');
+            Route::delete('{node}', 'destroy')->whereUuid('node');
         });
 
         Route::controller(AdminMonitoringController::class)->group(function (): void {
