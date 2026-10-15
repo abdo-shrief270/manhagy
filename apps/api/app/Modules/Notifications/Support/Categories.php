@@ -18,6 +18,12 @@ final class Categories
             'permission' => 'owner',
             'prefixes' => ['billing.'],
         ],
+        'wallet' => [
+            'label' => 'تحويلات الطلاب',
+            'description' => 'لما طالب يحوّل فلوس ويستنى تأكيد الشحن.',
+            'permission' => 'wallet.confirm',
+            'prefixes' => ['wallet.'],
+        ],
     ];
 
     public static function of(string $type): ?string
