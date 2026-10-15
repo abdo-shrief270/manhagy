@@ -50,7 +50,10 @@ final class Player
         $progress = LessonProgress::query()->where('learner_id', $learner['learner_id'])->whereIn('lesson_id', array_column($outline, 'id'))->get()->keyBy('lesson_id')->all();
         $reason = Rules::lockReason($lesson, $outline, $this->enrollments->hasAccess($learner['learner_id'], $lesson['course_id']), $progress);
         if ($reason !== null) {
-            throw new DomainRuleException(Rules::MESSAGES[$reason], $reason, $reason === 'exam_soon' ? 409 : 403, ['publish_at' => $lesson['publish_at']]);
+            throw new DomainRuleException(Rules::MESSAGES[$reason], $reason, 403, ['publish_at' => $lesson['publish_at']]);
+        }
+        if ($lesson['kind'] === 'exam') {
+            return ['kind' => 'exam', 'lesson_id' => $lesson['id']]; // the exam itself: learner/exams/{lesson}
         }
 
         return DB::transaction(function () use ($learner, $lesson, $ip): array {

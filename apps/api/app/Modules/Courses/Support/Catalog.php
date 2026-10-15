@@ -44,6 +44,12 @@ final class Catalog implements CourseCatalog
         return $out;
     }
 
+    public function chapters(string $courseId): array
+    {
+        return Chapter::query()->where('course_id', $courseId)->orderBy('sort')->orderBy('created_at')->get(['id', 'title'])
+            ->map(fn (Chapter $c) => ['id' => $c->id, 'title' => $c->title])->all();
+    }
+
     public function lesson(string $id): ?array
     {
         $lesson = Lesson::query()->find($id);

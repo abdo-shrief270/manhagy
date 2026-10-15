@@ -21,6 +21,9 @@ interface CourseCatalog
     /** @return list<array<string, mixed>> the course's lessons in order (chapter, then lesson) */
     public function outline(string $courseId): array;
 
+    /** @return list<array{id: string, title: string}> the course's chapters in order */
+    public function chapters(string $courseId): array;
+
     /** @return array<string, mixed>|null the lesson, with its course's status as course_status */
     public function lesson(string $id): ?array;
 }

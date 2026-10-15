@@ -14,4 +14,5 @@ Schedule::call(fn () => Health::beat('scheduler'))->name('monitoring:scheduler-b
 Schedule::job(new QueueHeartbeat)->name('monitoring:queue-beat')->everyMinute();
 
 // Renewal reminders to shop owners, mid-morning Cairo time (once per step and end date).
+Schedule::command('assessments:close-expired')->everyMinute()->withoutOverlapping();
 Schedule::command('billing:remind')->dailyAt('08:07')->withoutOverlapping();
