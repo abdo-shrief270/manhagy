@@ -1,0 +1,13 @@
+<?php
+
+use App\Support\Modules\ModuleManifest;
+use App\Support\Modules\ModuleTier;
+
+// Test-only optional module (an extra bought on top of a plan in the billing tests).
+return new ModuleManifest(
+    key: 'web_page',
+    name: 'صفحة على النت',
+    tier: ModuleTier::Optional,
+    permissions: ['web_page.edit' => 'إدارة صفحة على النت'],
+    sort: 910,
+);

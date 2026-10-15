@@ -1,0 +1,110 @@
+<?php
+
+namespace Tests\Architecture;
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Routing\Route as RoutingRoute;
+use Illuminate\Support\Facades\Route;
+use ReflectionMethod;
+use ReflectionNamedType;
+use Tests\TestCase;
+
+/**
+ * Every signed-in API route says who may call it: a `can:` middleware, or a form request that
+ * implements authorize(). A route that needs neither is listed here with the reason.
+ */
+class RouteAuthorizationTest extends TestCase
+{
+    /** uri => why it needs no permission of its own */
+    private const OPEN = [
+        'api/v1/auth/me' => 'your own session',
+        'api/v1/auth/logout' => 'your own session',
+        'api/v1/billing/status' => 'the subscription banner every screen shows',
+
+        'api/v1/account/two-factor' => 'your own two-factor sign-in (changes need your password or a code)',
+        'api/v1/account/two-factor/setup' => 'your own two-factor sign-in, needs your password',
+        'api/v1/account/two-factor/confirm' => 'your own two-factor sign-in, needs a code from your app',
+        'api/v1/account/two-factor/recovery-codes' => 'your own recovery codes, needs your password',
+        'api/v1/account/password' => 'your own password, needs the current one',
+        'api/v1/account/pin' => 'your own approval PIN, changes need your password',
+        'api/v1/account/passkeys' => 'your own passkeys, adding one needs your password',
+        'api/v1/account/passkeys/options' => 'your own passkeys, needs your password',
+        'api/v1/account/passkeys/{passkey}' => 'one of your own passkeys',
+        'api/v1/account/unlock' => 'unlocking your own signed-in device',
+        'api/v1/account/unlock/options' => 'unlocking your own signed-in device',
+        'api/v1/account/sessions' => 'your own signed-in devices',
+        'api/v1/account/sessions/{session}' => 'one of your own signed-in devices',
+        'api/v1/messages/templates' => 'the shop\'s message wording, used by every WhatsApp button',
+        'api/v1/notifications' => 'your own bell: only notifications whose permission you have',
+        'api/v1/notifications/unread' => 'your own bell: only notifications whose permission you have',
+        'api/v1/notifications/read-all' => 'your own read marks, on notifications you may see',
+        'api/v1/notifications/{notification}/read' => 'your own read marks, on notifications you may see',
+        'api/v1/notifications/preferences' => 'your own push preferences: only the categories you may receive',
+        'api/v1/push/key' => 'the public key browsers need to subscribe',
+        'api/v1/push/subscriptions' => 'your own devices getting your notifications',
+        'api/v1/push/test' => 'a test push to your own devices',
+        'api/v1/onboarding' => 'your own «ابدأ من هنا» card: only the steps you have the permission for, folded / hidden per user',
+        'api/v1/feedback' => 'anyone signed in may write to the platform team (rate-limited per user and per shop)',
+        'api/v1/client-errors' => 'the app reporting its own crashes (scrubbed, rate-limited, capped per shop)',
+    ];
+
+    public function test_every_signed_in_route_checks_a_permission(): void
+    {
+        $unguarded = [];
+
+        foreach (Route::getRoutes()->getRoutes() as $route) {
+            /** @var RoutingRoute $route */
+            $middleware = $route->gatherMiddleware();
+            if (! str_starts_with($route->uri(), 'api/v1/') || ! in_array('auth:sanctum', $middleware, true) || isset(self::OPEN[$route->uri()])) {
+                continue;
+            }
+            if (array_filter($middleware, fn ($m) => is_string($m) && str_starts_with($m, 'can:')) !== []) {
+                continue;
+            }
+            if ($this->authorizesInFormRequest($route) || $this->authorizesInController($route)) {
+                continue;
+            }
+            $unguarded[] = implode('|', $route->methods()).' '.$route->uri();
+        }
+
+        $this->assertSame([], $unguarded, "Routes without a permission check:\n".implode("\n", $unguarded));
+    }
+
+    private function authorizesInFormRequest(RoutingRoute $route): bool
+    {
+        $method = $this->action($route);
+        foreach ($method?->getParameters() ?? [] as $parameter) {
+            $type = $parameter->getType();
+            if ($type instanceof ReflectionNamedType && is_subclass_of($type->getName(), FormRequest::class)
+                && method_exists($type->getName(), 'authorize')
+                && (new ReflectionMethod($type->getName(), 'authorize'))->getDeclaringClass()->getName() === $type->getName()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** A controller action that checks for itself (abort_unless / Gate / can()). */
+    private function authorizesInController(RoutingRoute $route): bool
+    {
+        $method = $this->action($route);
+        if ($method === null || $method->getFileName() === false) {
+            return false;
+        }
+        $lines = array_slice(file((string) $method->getFileName()) ?: [], $method->getStartLine() - 1, $method->getEndLine() - $method->getStartLine() + 1);
+
+        return preg_match('/abort_unless\(.*->can\(|Gate::authorize|->authorize\(/', implode('', $lines)) === 1;
+    }
+
+    private function action(RoutingRoute $route): ?ReflectionMethod
+    {
+        $uses = $route->getAction('uses');
+        if (! is_string($uses) || ! str_contains($uses, '@')) {
+            return null;
+        }
+        [$class, $method] = explode('@', $uses);
+
+        return method_exists($class, $method) ? new ReflectionMethod($class, $method) : null;
+    }
+}

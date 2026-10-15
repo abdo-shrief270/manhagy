@@ -1,0 +1,35 @@
+name: api
+
+on:
+  push:
+    branches: [main]
+    paths: ['apps/api/**', '.github/workflows/api.yml']
+  pull_request:
+    paths: ['apps/api/**', '.github/workflows/api.yml']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: manhagy
+          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: manhagy_test
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_pgsql, redis, intl, bcmath, gd
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: cp .env.example .env && php artisan key:generate
+      - run: vendor/bin/pint --test
+      - run: php artisan test

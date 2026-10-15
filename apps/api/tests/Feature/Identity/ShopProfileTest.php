@@ -1,0 +1,73 @@
+<?php
+
+namespace Tests\Feature\Identity;
+
+use App\Support\Audit\AuditEntry;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\SellsInAShop;
+use Tests\TestCase;
+
+/** The owner's «بيانات المحل والإيصال»: name, phone and what receipts print. */
+class ShopProfileTest extends TestCase
+{
+    use RefreshDatabase, SellsInAShop;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->openShopWithStock();
+    }
+
+    public function test_the_owner_sets_the_shop_name_phone_and_receipt_lines(): void
+    {
+        $this->getJson('/api/v1/shop/profile')->assertOk()
+            ->assertJsonPath('data.receipt.footer', 'شكراً لزيارتك 🌷')
+            ->assertJsonPath('data.receipt.tax_number', null);
+
+        $this->putJson('/api/v1/shop/profile', [
+            'name' => 'موبايلات النور',
+            'phone' => '01011112222',
+            'tax_number' => ' 123-456-789 ',
+            'commercial_register' => '98765',
+            'footer' => 'الضمان 14 يوم بالإيصال',
+        ])->assertOk()
+            ->assertJsonPath('data.name', 'موبايلات النور')
+            ->assertJsonPath('data.phone', '+201011112222')
+            ->assertJsonPath('data.receipt.tax_number', '123-456-789')
+            ->assertJsonPath('data.receipt.footer', 'الضمان 14 يوم بالإيصال');
+
+        // The session carries it, so every receipt prints it.
+        $this->getJson('/api/v1/auth/me')->assertJsonPath('data.tenant.receipt.commercial_register', '98765');
+        $this->assertTrue($this->inShop(fn () => AuditEntry::query()->where('action', 'shop.profile_updated')->exists()));
+
+        // An empty footer falls back to the default line.
+        $this->putJson('/api/v1/shop/profile', ['name' => 'موبايلات النور', 'phone' => '01011112222', 'footer' => ''])
+            ->assertOk()->assertJsonPath('data.receipt.footer', 'شكراً لزيارتك 🌷')->assertJsonPath('data.receipt.tax_number', null);
+    }
+
+    public function test_the_owner_picks_the_default_label_rolls(): void
+    {
+        $this->getJson('/api/v1/shop/profile')->assertOk()
+            ->assertJsonPath('data.receipt.product_label', '38x25')
+            ->assertJsonPath('data.receipt.repair_label', '58x40');
+
+        $this->putJson('/api/v1/shop/profile', ['name' => 'محل', 'phone' => '01011112222', 'product_label' => 'a4', 'repair_label' => '80x50'])
+            ->assertOk()->assertJsonPath('data.receipt.product_label', 'a4')->assertJsonPath('data.receipt.repair_label', '80x50');
+        // Left out = kept; it rides on /auth/me for every user's screens.
+        $this->putJson('/api/v1/shop/profile', ['name' => 'محل', 'phone' => '01011112222'])->assertOk()->assertJsonPath('data.receipt.repair_label', '80x50');
+        $this->getJson('/api/v1/auth/me')->assertJsonPath('data.tenant.receipt.product_label', 'a4');
+        $this->putJson('/api/v1/shop/profile', ['name' => 'محل', 'phone' => '01011112222', 'repair_label' => '10x10'])->assertJsonValidationErrors('repair_label');
+    }
+
+    public function test_it_is_for_the_owner_only_and_validated(): void
+    {
+        $this->putJson('/api/v1/shop/profile', ['name' => '', 'phone' => '123', 'footer' => str_repeat('x', 201)])
+            ->assertStatus(422)->assertJsonValidationErrors(['name', 'phone', 'footer']);
+
+        Sanctum::actingAs($this->staff('manager'));
+        $this->getJson('/api/v1/shop/profile')->assertForbidden();
+        $this->putJson('/api/v1/shop/profile', ['name' => 'x', 'phone' => '01011112222'])->assertForbidden();
+    }
+}

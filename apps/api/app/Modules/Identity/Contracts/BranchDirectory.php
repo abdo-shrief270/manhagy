@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Identity\Contracts;
+
+use Illuminate\Contracts\Auth\Authenticatable;
+
+/** The shop's branches as other modules see them. */
+interface BranchDirectory
+{
+    /**
+     * Active branches the user may see (all of them for the owner), main branch first.
+     *
+     * @return array<string, string> id => name
+     */
+    public function accessibleBranches(Authenticatable $user): array;
+
+    /**
+     * Every active branch of the current shop (e.g. to name the other side of a transfer), main first.
+     *
+     * @return array<string, string> id => name
+     */
+    public function all(): array;
+
+    /** The current shop's main branch (where work that isn't tied to a branch lands). */
+    public function mainBranchId(): ?string;
+
+    /**
+     * Every active branch of the current shop with where it is (the marketplace), main first.
+     *
+     * @return array<string, array{name: string, address: string|null, phone: string|null, governorate: string|null, governorate_label: string|null, area: string|null, latitude: float|null, longitude: float|null, is_main: bool}>
+     */
+    public function locations(): array;
+}

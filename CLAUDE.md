@@ -1,0 +1,30 @@
+# منهجي (Manhagy) — notes for AI assistants
+
+E-learning SaaS for teachers and centers in Egypt (later: marketplace, then LMS for schools, institutes, colleges, universities). Product plan: `docs/PLAN.md`. Technical plan: `docs/TECH_PLAN.md` (build order in §13). UI copy is Egyptian Arabic, RTL. Domain: `manhagy.online` (teacher sites `{slug}.manhagy.online`).
+
+## Layout
+- `site/` — static landing page for teachers (deployed by `.github/workflows/deploy.yml` with `deploy/setup-server.sh`); `src/` draws its screens, ads and the page (`python3 src/screens.py && node src/render.cjs screens 2`, `src/ads.py`, `src/site.py`; the domain is `DOMAIN` in `src/common.py`). `ADS.md`, `INTERVIEW.md` = the market test.
+- `apps/api` — Laravel 13, PHP 8.4, PostgreSQL. The platform kernel copied from Muhasebi (modular monolith `app/Modules/*`, shared kernel `app/Support/*`), with the shop modules removed. Modules kept: Identity, ModuleManager, Billing, Notifications, Messaging, Feedback.
+
+## Rules that tests enforce (`apps/api/tests/Architecture`)
+- A module may only reference another module's `Contracts\` and `Events\` namespaces.
+- Every model under `app/Modules/*/Models` uses `BelongsToTenant` (or `SharedBetweenTenants`), except the allowlist (Tenant, User).
+- Every route of an `Optional` module carries `module:{key}` middleware; every signed-in route checks a permission (`RouteAuthorizationTest`).
+
+## Conventions (same as Muhasebi unless noted)
+- New module: `app/Modules/{Name}/module.php` returning a `ModuleManifest`; routes in `routes.php` (auto-prefixed `/api/v1`), migrations in `Database/migrations`, listeners in a `ModuleServiceProvider` `$listen`.
+- Cross-module side effects: must succeed with the change → a `Contracts\` interface inside the transaction; otherwise → `EventRecorder::record(...)` + a `ModuleListener`.
+- Permissions are declared in manifests and enforced with `can:{key}` / `$user->can()`. Owners have every permission of the modules the account can use. Default roles (`Identity\Support\DefaultRoles`): `manager` (all but roles / audit) and `assistant` (its list is intersected with the permissions that exist, so later modules' keys already sit there).
+- Account kind (`Identity\Enums\AccountKind`): teacher | center open at sign-up; institute | school | college | university exist for the LMS phase (not selectable yet). Stored in `tenants.shop_types` / `shop_type` (column names kept from the kernel); manifests' `shopTypes` / `trialFor` use these values. A second branch is for centers only (`branches_for_centers`).
+- Billing plans (`config/billing.php`): teacher / pro / center, priced by active students (assumptions; admins change them). No optional module exists yet, so plans, `needs` and module prices are empty lists.
+- WhatsApp templates (`Messaging\Support\Templates`): parent_report, parent_absence, student_welcome, renewal_reminder; message subjects learner / guardian / enrollment / exam_attempt / group_session. Notification categories: billing only so far — each module adds its own.
+- Money is integer piasters; shop data ids are UUIDv7; `DomainRuleException` for business rules; `Auditor::record()` for sensitive actions; don't cache Eloquent models.
+
+## Tests
+- `php artisan test` (DB `manhagy_test`, user `manhagy`), `vendor/bin/pint`.
+- Module mechanics (trials, plans, permissions, feature switches, listeners, tenancy) are tested with test-only modules in `tests/Fixtures/Modules` (demo, extra, center_tools, reports_plus, web_page, branches), loaded only when `APP_ENV=testing` (`ModulesServiceProvider::paths()`). Billing tests use fixed test plans set in `tests/TestCase.php`, not the real prices.
+- `Tests\Concerns\SellsInAShop::openShopWithStock()` = a registered teacher account with its owner signed in (name kept from the kernel).
+
+## Not yet done from the kernel copy
+- Names still say "shop" in places (`shop_types`, `ShopProfile`, `PlatformShops`, `CreatesShops`); receipt / label settings (`ReceiptSettings`) are Muhasebi's and will be reshaped for the center.
+- Apps besides the API (web, learn, admin, site, infra) are not created yet.
