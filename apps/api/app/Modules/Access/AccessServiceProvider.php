@@ -1,0 +1,17 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Access;
+
+use App\Modules\Access\Contracts\Enrollments;
+use App\Modules\Access\Support\EnrollmentBook;
+use App\Support\Modules\ModuleServiceProvider;
+
+final class AccessServiceProvider extends ModuleServiceProvider
+{
+    public function register(): void
+    {
+        $this->app->bind(Enrollments::class, EnrollmentBook::class);
+    }
+}

@@ -17,7 +17,12 @@ final class Directory implements LearnerDirectory
     {
         $learner = $this->auth->guard('sanctum')->user();
 
-        return $learner instanceof Learner ? $this->find($learner->id) : null;
+        if (! $learner instanceof Learner || ($found = $this->find($learner->id)) === null) {
+            return null;
+        }
+        $device = collect($learner->currentAccessToken()?->abilities ?? [])->first(fn (string $a) => str_starts_with($a, 'device:'));
+
+        return [...$found, 'device_id' => $device === null ? null : substr($device, 7)];
     }
 
     public function find(string $learnerId): ?array

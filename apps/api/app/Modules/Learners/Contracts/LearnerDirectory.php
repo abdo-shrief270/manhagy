@@ -10,7 +10,7 @@ namespace App\Modules\Learners\Contracts;
  */
 interface LearnerDirectory
 {
-    /** @return array<string, mixed>|null the student on this request (learner routes), null otherwise */
+    /** @return array<string, mixed>|null the student on this request (learner routes) + the device_id they signed in on, null otherwise */
     public function current(): ?array;
 
     /** @return array<string, mixed>|null this account's student */

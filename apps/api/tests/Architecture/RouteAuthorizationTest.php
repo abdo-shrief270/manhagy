@@ -18,8 +18,6 @@ class RouteAuthorizationTest extends TestCase
     /** uri => why it needs no permission of its own */
     private const OPEN = [
         'api/v1/auth/me' => 'your own session',
-        'api/v1/learner/me' => 'a student\'s own session (the learner middleware: their token, site and device)',
-        'api/v1/learner/logout' => 'a student\'s own session (the learner middleware: their token, site and device)',
         'api/v1/auth/logout' => 'your own session',
         'api/v1/billing/status' => 'the subscription banner every screen shows',
 
@@ -60,7 +58,8 @@ class RouteAuthorizationTest extends TestCase
             if (! str_starts_with($route->uri(), 'api/v1/') || ! in_array('auth:sanctum', $middleware, true) || isset(self::OPEN[$route->uri()])) {
                 continue;
             }
-            if (array_filter($middleware, fn ($m) => is_string($m) && str_starts_with($m, 'can:')) !== []) {
+            // A student's own routes: the learner middleware checks their token, site and device, and each action only reads their own data.
+            if (array_filter($middleware, fn ($m) => is_string($m) && (str_starts_with($m, 'can:') || $m === 'learner')) !== []) {
                 continue;
             }
             if ($this->authorizesInFormRequest($route) || $this->authorizesInController($route)) {
