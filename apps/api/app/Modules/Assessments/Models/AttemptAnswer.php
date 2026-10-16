@@ -18,8 +18,12 @@ use Illuminate\Support\Carbon;
  * @property bool|null $correct
  * @property int $points_awarded
  * @property Carbon $answered_at
+ * @property string|null $photo_path
+ * @property string|null $comment
+ * @property string|null $graded_by_name
+ * @property Carbon|null $graded_at
  */
-#[Fillable(['tenant_id', 'attempt_id', 'question_id', 'answer', 'correct', 'points_awarded', 'answered_at'])]
+#[Fillable(['tenant_id', 'attempt_id', 'question_id', 'answer', 'correct', 'points_awarded', 'answered_at', 'photo_path', 'comment', 'graded_by_name', 'graded_at'])]
 final class AttemptAnswer extends Model
 {
     use BelongsToTenant, HasUuids;
@@ -28,6 +32,6 @@ final class AttemptAnswer extends Model
 
     protected function casts(): array
     {
-        return ['answer' => 'json', 'correct' => 'boolean', 'points_awarded' => 'integer', 'answered_at' => 'datetime'];
+        return ['answer' => 'json', 'correct' => 'boolean', 'points_awarded' => 'integer', 'answered_at' => 'datetime', 'graded_at' => 'datetime'];
     }
 }

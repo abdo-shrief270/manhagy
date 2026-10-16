@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Modules\MenuItem;
 use App\Support\Modules\ModuleManifest;
 use App\Support\Modules\ModuleTier;
 
@@ -11,6 +12,10 @@ return new ModuleManifest(
     permissions: [
         'reports.view' => 'عرض لوحة المدرس',
         'reports.money' => 'عرض الإيرادات',
+        'reports.parents' => 'تقارير أولياء الأمور',
+    ],
+    menu: [
+        new MenuItem('/parent-reports', 'تقارير أولياء الأمور', 'i-lucide-send', 'reports.parents', group: 'learners'),
     ],
     sort: 50,
 );

@@ -40,6 +40,14 @@ final class LearnerExamController
         return response()->json(['data' => ['saved' => true, 'server_now' => now()->toIso8601String()]]);
     }
 
+    public function answerPhoto(Request $request, string $attempt, string $question): JsonResponse
+    {
+        $data = $request->validate(['photo' => ['required', 'image', 'max:8192']], [], ['photo' => 'الصورة']);
+        $this->sitting->answerPhoto($this->attempt($attempt), $question, (string) file_get_contents($data['photo']->getRealPath()));
+
+        return response()->json(['data' => ['saved' => true, 'server_now' => now()->toIso8601String()]]);
+    }
+
     public function leave(string $attempt): JsonResponse
     {
         return response()->json(['data' => ['leaves' => $this->sitting->leave($this->attempt($attempt))]]);

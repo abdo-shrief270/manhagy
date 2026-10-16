@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Assessments\Http\Controllers\ExamController;
+use App\Modules\Assessments\Http\Controllers\GradingController;
 use App\Modules\Assessments\Http\Controllers\LearnerExamController;
 use App\Modules\Assessments\Http\Controllers\QuestionController;
 use Illuminate\Support\Facades\Route;
@@ -13,6 +14,7 @@ Route::middleware(['auth:sanctum', 'learner'])->prefix('learner')->controller(Le
     Route::post('exams/{lesson}/start', 'start')->middleware(['learner.verified', 'throttle:20,1']);
     Route::get('attempts/{attempt}', 'paper');
     Route::put('attempts/{attempt}/answers/{question}', 'answer')->middleware('throttle:240,1');
+    Route::post('attempts/{attempt}/answers/{question}/photo', 'answerPhoto')->middleware('throttle:30,1');
     Route::post('attempts/{attempt}/leave', 'leave')->middleware('throttle:60,1');
     Route::post('attempts/{attempt}/submit', 'submit');
     Route::get('attempts/{attempt}/result', 'result');
@@ -31,5 +33,11 @@ Route::middleware(['auth:sanctum', 'tenant'])->prefix('assessments')->group(func
         Route::get('exams/{lesson}', 'show')->middleware('can:assessments.manage');
         Route::put('exams/{lesson}', 'save')->middleware('can:assessments.manage');
         Route::get('exams/{lesson}/results', 'results')->middleware('can:assessments.view');
+    });
+    Route::controller(GradingController::class)->middleware('can:assessments.grade')->group(function (): void {
+        Route::pattern('answer', '[0-9a-fA-F-]{36}');
+        Route::get('grading', 'index');
+        Route::get('grading/{answer}/photo', 'photo');
+        Route::post('grading/{answer}', 'grade');
     });
 });

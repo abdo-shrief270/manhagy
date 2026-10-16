@@ -9,9 +9,12 @@ use App\Modules\Assessments\Models\AttemptAnswer;
 use App\Modules\Assessments\Models\Exam;
 use App\Modules\Assessments\Models\ExamAttempt;
 use App\Modules\Assessments\Models\ExamQuestion;
+use App\Modules\Assessments\Models\Question;
 use App\Modules\Courses\Contracts\CourseCatalog;
 use App\Support\Exceptions\DomainRuleException;
+use App\Support\Media\WebpImage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * A student sitting an exam: the time is the server's (ends_at fixed at the start, a few
@@ -140,9 +143,25 @@ final class Sitting
         if (! Grader::wellFormed($item->question, $answer)) {
             throw new DomainRuleException('الإجابة دي مش من اختيارات السؤال.', 'answer_invalid');
         }
-        $correct = Grader::correct($item->question, $answer);
+        $manual = in_array($item->question->kind, Question::MANUAL, true);
+        $correct = $manual ? null : Grader::correct($item->question, $answer);
         AttemptAnswer::query()->updateOrCreate(['attempt_id' => $attempt->id, 'question_id' => $questionId], [
             'answer' => $answer, 'correct' => $correct, 'points_awarded' => $correct ? $item->points : 0, 'answered_at' => now(),
+        ]);
+    }
+
+    /** A photo of the student's written solution (photo questions), shrunk to WebP on the private disk. */
+    public function answerPhoto(ExamAttempt $attempt, string $questionId, string $raw): void
+    {
+        $this->ensureOpen($attempt);
+        $item = ExamQuestion::query()->with('question')->where('exam_id', $attempt->exam_id)->where('question_id', $questionId)->first() ?? abort(404);
+        if ($item->question->kind !== 'photo') {
+            throw new DomainRuleException('السؤال ده مش بصورة.', 'answer_invalid');
+        }
+        $path = "assessments/{$attempt->id}/{$questionId}.webp";
+        Storage::disk('local')->put($path, WebpImage::read($raw)->webp(1600));
+        AttemptAnswer::query()->updateOrCreate(['attempt_id' => $attempt->id, 'question_id' => $questionId], [
+            'answer' => ['photo' => true], 'photo_path' => $path, 'correct' => null, 'points_awarded' => 0, 'answered_at' => now(),
         ]);
     }
 
@@ -165,6 +184,7 @@ final class Sitting
             $locked->update([
                 'status' => 'submitted', 'submitted_by' => $by, 'submitted_at' => $by === 'timer' ? $locked->ends_at : now(),
                 'score' => $score, 'percent' => $locked->max_score > 0 ? intdiv($score * 100, $locked->max_score) : 0,
+                'pending_grading' => $locked->answers()->whereNull('correct')->count(),
             ]);
             $this->access->complete($locked->learner_id, $locked->exam->lesson_id);
 
@@ -190,6 +210,7 @@ final class Sitting
             'percent' => $attempt->percent,
             'passed' => $attempt->percent >= $exam->pass_percent,
             'submitted_by' => $attempt->submitted_by,
+            'pending_grading' => $attempt->pending_grading,
             'answers_visible' => $visible,
             'answers_at' => $exam->show_answers === 'after_close' ? $exam->closes_at?->toIso8601String() : null,
             'review' => $visible ? array_map(fn (ExamQuestion $item) => [
@@ -199,7 +220,9 @@ final class Sitting
                 'options' => $item->question->options,
                 'points' => $item->points,
                 'your_answer' => $saved[$item->question_id]->answer ?? null,
-                'correct' => (bool) ($saved[$item->question_id]->correct ?? false),
+                'correct' => isset($saved[$item->question_id]) ? $saved[$item->question_id]->correct : false,
+                'points_awarded' => $saved[$item->question_id]->points_awarded ?? 0,
+                'comment' => $saved[$item->question_id]->comment ?? null,
                 'correct_answer' => $item->question->answer,
                 'explanation' => $item->question->explanation,
             ], $this->items($attempt)) : null,

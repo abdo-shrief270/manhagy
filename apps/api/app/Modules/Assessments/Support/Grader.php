@@ -27,7 +27,8 @@ final class Grader
             'mcq' => is_string($answer) && in_array($answer, array_column($question->options ?? [], 'id'), true),
             'true_false' => is_bool($answer),
             'fill' => is_string($answer) && mb_strlen($answer) <= 200,
-            default => false,
+            'essay' => is_string($answer) && mb_strlen($answer) <= 5000,
+            default => false, // photo: only through the upload
         };
     }
 

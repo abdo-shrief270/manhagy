@@ -13,10 +13,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $id
  * @property string $course_id
  * @property string|null $chapter_id
- * @property string $kind mcq | true_false | fill
+ * @property string $kind mcq | true_false | fill | essay | photo
  * @property string $body
  * @property list<array{id: string, text: string}>|null $options
- * @property mixed $answer
+ * @property mixed $answer null for essay / photo (an optional model answer lives in explanation)
  * @property string|null $explanation
  * @property int $points
  * @property string $difficulty easy | medium | hard
@@ -27,7 +27,10 @@ final class Question extends Model
 {
     use BelongsToTenant, HasUuids;
 
-    public const KINDS = ['mcq', 'true_false', 'fill'];
+    public const KINDS = ['mcq', 'true_false', 'fill', 'essay', 'photo'];
+
+    /** Graded by a person. */
+    public const MANUAL = ['essay', 'photo'];
 
     public const DIFFICULTIES = ['easy', 'medium', 'hard'];
 

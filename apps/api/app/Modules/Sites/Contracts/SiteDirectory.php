@@ -6,7 +6,7 @@ namespace App\Modules\Sites\Contracts;
 
 /**
  * Each account's student platform ({slug}.manhagy.online). Sites are arrays:
- * {tenant_id, slug, title, tagline, color, device_limit, registration_open, require_parent_phone}.
+ * {tenant_id, slug, title, tagline, color, device_limit, registration_open, require_parent_phone, url}.
  */
 interface SiteDirectory
 {

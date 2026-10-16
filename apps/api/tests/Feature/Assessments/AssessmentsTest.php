@@ -4,7 +4,9 @@ namespace Tests\Feature\Assessments;
 
 use App\Modules\Assessments\Models\ExamAttempt;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Tests\Concerns\CreatesShops;
 use Tests\Concerns\RunsAPlatform;
 use Tests\TestCase;
@@ -149,6 +151,42 @@ class AssessmentsTest extends TestCase
         $this->travel(2)->hours();
         $this->assertTrue($this->asStudent()->getJson("/api/v1/learner/attempts/{$attempt}/result")->json('data.answers_visible'));
         $this->asStudent()->postJson("/api/v1/learner/exams/{$this->examLesson}/start")->assertStatus(409)->assertJsonPath('code', 'exam_closed');
+    }
+
+    public function test_essay_and_photo_answers_wait_for_an_assistant(): void
+    {
+        Storage::fake('local');
+        $this->enroll();
+        $essay = $this->postJson('/api/v1/assessments/questions', ['course_id' => $this->courseId, 'kind' => 'essay', 'body' => 'اشرح قانون نيوتن التاني', 'explanation' => 'ق = ك × ج', 'points' => 4])->assertCreated()->json('data');
+        $this->assertNull($essay['answer']);
+        $photo = $this->postJson('/api/v1/assessments/questions', ['course_id' => $this->courseId, 'kind' => 'photo', 'body' => 'حل المسألة في الكشكول وصوّرها', 'points' => 5])->assertCreated()->json('data.id');
+        $this->postJson('/api/v1/assessments/questions', ['course_id' => $this->courseId, 'kind' => 'essay', 'body' => 'سؤال', 'correct' => true])->assertUnprocessable();
+        $this->setUpExam(['questions' => [['id' => $this->q['mcq']], ['id' => $essay['id']], ['id' => $photo]]]);
+
+        $attempt = $this->asStudent()->postJson("/api/v1/learner/exams/{$this->examLesson}/start")->json('data.id');
+        $this->asStudent()->putJson("/api/v1/learner/attempts/{$attempt}/answers/{$this->q['mcq']}", ['answer' => 'b'])->assertOk();
+        $this->asStudent()->putJson("/api/v1/learner/attempts/{$attempt}/answers/{$essay['id']}", ['answer' => 'القوة تساوي الكتلة في العجلة'])->assertOk();
+        $this->asStudent()->putJson("/api/v1/learner/attempts/{$attempt}/answers/{$photo}", ['answer' => 'x'])->assertUnprocessable()->assertJsonPath('code', 'answer_invalid');
+        $this->asStudent()->post("/api/v1/learner/attempts/{$attempt}/answers/{$photo}/photo", ['photo' => UploadedFile::fake()->image('hal.jpg', 1200, 1600)], ['Accept' => 'application/json'])->assertOk();
+        $result = $this->asStudent()->postJson("/api/v1/learner/attempts/{$attempt}/submit")->assertOk()->json('data');
+        $this->assertSame([2, 11, 2], [$result['score'], $result['max_score'], $result['pending_grading']]);
+
+        $this->asTeacher();
+        $queue = $this->getJson('/api/v1/assessments/grading')->assertOk()->json();
+        $this->assertSame([2, 'يوسف أحمد'], [$queue['meta']['waiting'], $queue['data'][0]['learner_name']]);
+        $rows = collect($queue['data'])->keyBy('kind');
+        $this->assertSame(['القوة تساوي الكتلة في العجلة', 'ق = ك × ج', 4], [$rows['essay']['answer'], $rows['essay']['model_answer'], $rows['essay']['max_points']]);
+        $this->get("/api/v1/assessments/grading/{$rows['photo']['id']}/photo")->assertOk()->assertHeader('Content-Type', 'image/webp');
+
+        $this->postJson("/api/v1/assessments/grading/{$rows['essay']['id']}", ['points' => 9])->assertUnprocessable()->assertJsonPath('code', 'points_too_high');
+        $this->postJson("/api/v1/assessments/grading/{$rows['essay']['id']}", ['points' => 3, 'comment' => 'ناقص الوحدة'])->assertOk()->assertJsonPath('data.pending_grading', 1);
+        $done = $this->postJson("/api/v1/assessments/grading/{$rows['photo']['id']}", ['points' => 5])->assertOk()->json('data');
+        $this->assertSame([10, 90, 0], [$done['score'], $done['percent'], $done['pending_grading']]);
+        $this->assertSame(0, $this->getJson('/api/v1/assessments/grading')->json('meta.waiting'));
+        $this->assertCount(2, $this->getJson('/api/v1/assessments/grading?graded=1')->json('data'));
+
+        $review = collect($this->asStudent()->getJson("/api/v1/learner/attempts/{$attempt}/result")->json('data.review'))->keyBy('id');
+        $this->assertSame([3, 'ناقص الوحدة', false], [$review[$essay['id']]['points_awarded'], $review[$essay['id']]['comment'], $review[$essay['id']]['correct']]);
     }
 
     public function test_each_student_gets_their_own_order(): void

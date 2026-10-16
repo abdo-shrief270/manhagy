@@ -24,6 +24,12 @@ final class Categories
             'permission' => 'wallet.confirm',
             'prefixes' => ['wallet.'],
         ],
+        'questions' => [
+            'label' => 'أسئلة الطلاب',
+            'description' => 'لما طالب يسأل تحت درس.',
+            'permission' => 'engagement.answer',
+            'prefixes' => ['engagement.'],
+        ],
     ];
 
     public static function of(string $type): ?string

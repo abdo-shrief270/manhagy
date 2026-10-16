@@ -42,6 +42,7 @@ final class Site extends Model
             'device_limit' => $this->device_limit,
             'registration_open' => $this->registration_open,
             'require_parent_phone' => $this->require_parent_phone,
+            'url' => ($host = (string) config('services.sites.host')) !== '' ? "https://{$this->slug}.{$host}" : null,
         ];
     }
 }

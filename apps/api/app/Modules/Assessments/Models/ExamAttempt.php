@@ -28,20 +28,22 @@ use Illuminate\Support\Carbon;
  * @property int $max_score
  * @property int|null $percent
  * @property int $leaves
+ * @property int $pending_grading manual answers still to grade
+ * @property Carbon|null $graded_at
  * @property-read Exam $exam
  */
-#[Fillable(['tenant_id', 'exam_id', 'learner_id', 'number', 'seed', 'started_at', 'ends_at', 'submitted_at', 'status', 'submitted_by', 'score', 'max_score', 'percent', 'leaves'])]
+#[Fillable(['tenant_id', 'exam_id', 'learner_id', 'number', 'seed', 'started_at', 'ends_at', 'submitted_at', 'status', 'submitted_by', 'score', 'max_score', 'percent', 'leaves', 'pending_grading', 'graded_at'])]
 final class ExamAttempt extends Model
 {
     use BelongsToTenant, HasUuids;
 
-    protected $attributes = ['status' => 'in_progress', 'leaves' => 0];
+    protected $attributes = ['status' => 'in_progress', 'leaves' => 0, 'pending_grading' => 0];
 
     protected function casts(): array
     {
         return [
             'number' => 'integer', 'seed' => 'integer', 'started_at' => 'datetime', 'ends_at' => 'datetime', 'submitted_at' => 'datetime',
-            'score' => 'integer', 'max_score' => 'integer', 'percent' => 'integer', 'leaves' => 'integer',
+            'score' => 'integer', 'max_score' => 'integer', 'percent' => 'integer', 'leaves' => 'integer', 'pending_grading' => 'integer', 'graded_at' => 'datetime',
         ];
     }
 

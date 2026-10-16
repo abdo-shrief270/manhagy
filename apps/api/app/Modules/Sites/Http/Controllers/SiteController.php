@@ -55,8 +55,6 @@ final class SiteController
     /** @param  array<string, mixed>  $site */
     private function present(array $site): array
     {
-        $host = (string) config('services.sites.host');
-
-        return [...$site, 'url' => $host !== '' ? "https://{$site['slug']}.{$host}" : null, 'colors' => Directory::COLORS];
+        return [...$site, 'colors' => Directory::COLORS];
     }
 }

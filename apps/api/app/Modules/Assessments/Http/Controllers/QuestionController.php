@@ -86,7 +86,7 @@ final class QuestionController
             // mcq: the choices and the index of the right one
             'options' => [$kind === 'mcq' ? $required : 'prohibited', 'array', 'min:2', 'max:6'],
             'options.*' => ['string', 'min:1', 'max:500', 'distinct'],
-            'correct' => [$kind === 'fill' ? 'prohibited' : $required, $kind === 'mcq' ? 'integer' : 'boolean'],
+            'correct' => [in_array($kind, ['mcq', 'true_false'], true) ? $required : 'prohibited', $kind === 'mcq' ? 'integer' : 'boolean'],
             // fill: the accepted answers
             'accepted' => [$kind === 'fill' ? $required : 'prohibited', 'array', 'min:1', 'max:5'],
             'accepted.*' => ['string', 'min:1', 'max:200'],
@@ -105,6 +105,8 @@ final class QuestionController
             $out['answer'] = (bool) $data['correct'];
         } elseif ($kind === 'fill' && isset($data['accepted'])) {
             $out['answer'] = array_values(array_unique(array_map('trim', $data['accepted'])));
+        } elseif (in_array($kind, Question::MANUAL, true) && $current === null) {
+            $out['answer'] = null;
         }
 
         return $out;
