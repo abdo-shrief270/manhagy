@@ -1,0 +1,42 @@
+// The platform admin panel: its own app, built and served on its own domain (ADMIN_DOMAIN),
+// so none of it ships to shop users. Talks only to /api/v1/admin/*.
+export default defineNuxtConfig({
+  compatibilityDate: '2026-09-01',
+  devtools: { enabled: false },
+  modules: ['@nuxt/ui'],
+  css: ['~/assets/css/main.css'],
+  ssr: false,
+
+  app: {
+    head: {
+      htmlAttrs: { lang: 'ar', dir: 'rtl' },
+      title: 'منهجي — الإدارة',
+      meta: [{ name: 'robots', content: 'noindex, nofollow' }],
+      link: [
+        { rel: 'icon', href: '/favicon.ico?v=2', sizes: '48x48' },
+        { rel: 'icon', href: '/favicon.svg?v=2', type: 'image/svg+xml' },
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap' },
+      ],
+    },
+  },
+
+  ui: { fonts: false },
+  colorMode: { preference: 'light', fallback: 'light', storageKey: 'manhagy-admin-color-mode' },
+
+  icon: {
+    clientBundle: {
+      scan: true,
+      icons: ['lucide:layout-dashboard', 'lucide:banknote', 'lucide:store', 'lucide:sun', 'lucide:moon', 'lucide:log-out', 'lucide:shield', 'lucide:history', 'lucide:message-square-heart', 'lucide:bug', 'lucide:ticket-percent', 'lucide:server', 'lucide:blocks', 'lucide:search', 'lucide:pencil', 'lucide:rotate-ccw', 'lucide:circle-check', 'lucide:gift', 'lucide:clock', 'lucide:eye-off', 'lucide:handshake', 'lucide:check', 'lucide:x', 'lucide:crown', 'lucide:menu', 'lucide:tags', 'lucide:smartphone', 'lucide:plus', 'lucide:trash-2', 'lucide:flag', 'lucide:eye', 'lucide:external-link', 'lucide:user-plus', 'lucide:message-circle', 'lucide:copy'],
+    },
+  },
+
+  runtimeConfig: {
+    public: {
+      apiBase: 'http://localhost:8000/api/v1', // NUXT_PUBLIC_API_BASE
+    },
+  },
+
+  typescript: { strict: true },
+})

@@ -1,0 +1,29 @@
+name: apps
+
+on:
+  push:
+    branches: [main]
+    paths: ['apps/web/**', 'apps/learn/**', 'apps/admin/**', '.github/workflows/apps.yml']
+  pull_request:
+    paths: ['apps/web/**', 'apps/learn/**', 'apps/admin/**', '.github/workflows/apps.yml']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [web, learn, admin]
+    defaults:
+      run:
+        working-directory: apps/${{ matrix.app }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/${{ matrix.app }}/package-lock.json
+      - run: npm ci
+      - run: npx nuxi typecheck
+      - run: npm run build
