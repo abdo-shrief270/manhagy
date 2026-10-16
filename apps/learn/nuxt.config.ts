@@ -31,7 +31,7 @@ export default defineNuxtConfig({
     clientBundle: {
       scan: true,
       // Icons named in script code (the scan misses those). Regenerate: grep -rhoE "i-lucide-[a-z0-9-]+" app | sort -u
-      icons: ['lucide:arrow-right', 'lucide:book-open-text', 'lucide:check', 'lucide:chevron-left', 'lucide:circle-check', 'lucide:circle-dashed', 'lucide:circle-pause', 'lucide:circle-x', 'lucide:clapperboard', 'lucide:external-link', 'lucide:file-text', 'lucide:hourglass', 'lucide:list-checks', 'lucide:loader-circle', 'lucide:lock', 'lucide:log-out', 'lucide:message-circle', 'lucide:party-popper', 'lucide:play', 'lucide:send', 'lucide:shield-alert', 'lucide:shopping-cart', 'lucide:smartphone', 'lucide:ticket', 'lucide:user', 'lucide:user-plus', 'lucide:wallet'],
+      icons: ['lucide:arrow-right', 'lucide:book-open-text', 'lucide:check', 'lucide:chevron-left', 'lucide:circle-check', 'lucide:circle-dashed', 'lucide:circle-pause', 'lucide:circle-x', 'lucide:clapperboard', 'lucide:external-link', 'lucide:file-text', 'lucide:hourglass', 'lucide:list-checks', 'lucide:loader-circle', 'lucide:lock', 'lucide:log-out', 'lucide:message-circle', 'lucide:party-popper', 'lucide:play', 'lucide:qr-code', 'lucide:send', 'lucide:shield-alert', 'lucide:shopping-cart', 'lucide:smartphone', 'lucide:ticket', 'lucide:user', 'lucide:user-plus', 'lucide:wallet'],
     },
   },
 

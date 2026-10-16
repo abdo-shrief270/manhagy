@@ -295,3 +295,64 @@ export interface Site {
   url: string | null
   colors?: string[]
 }
+
+export interface ScheduleSlot { day: number, time: string, minutes: number }
+
+export interface CenterGroup {
+  id: string
+  name: string
+  teacher_id: string | null
+  teacher: string | null
+  grade_node_id: string | null
+  grade: string | null
+  course_id: string | null
+  room: string | null
+  schedule: ScheduleSlot[]
+  schedule_label: string
+  session_fee: number
+  monthly_fee: number | null
+  capacity: number | null
+  active: boolean
+  members?: number | { id: string, learner_id: string, name: string, phone: string | null, plan: 'session' | 'monthly', joined_at: string }[]
+  sessions?: { id: string, starts_at: string, minutes: number, status: string, present: number }[]
+}
+
+export interface RosterStudent {
+  learner_id: string
+  name: string
+  phone: string | null
+  parent_phone: string | null
+  plan: 'session' | 'monthly' | 'guest'
+  present: boolean
+  late: boolean
+  scanned_at: string | null
+  owes: number
+  token: string | null
+}
+
+export interface Roster {
+  id: string
+  group_id: string
+  group: string
+  room: string | null
+  starts_at: string
+  minutes: number
+  status: string
+  session_fee: number
+  monthly_fee: number | null
+  collected: number
+  students: RosterStudent[]
+}
+
+export interface TodaySession { id: string, group_id: string, group: string, room: string | null, starts_at: string, minutes: number, present: number, members: number }
+
+export interface CenterTeacher {
+  id: string
+  name: string
+  phone: string | null
+  subject: string | null
+  share_kind: 'percent' | 'per_student'
+  share_value: number
+  active: boolean
+  statement?: { from: string, to: string, attendances: number, collected: number, due: number, paid: number, remaining: number }
+}

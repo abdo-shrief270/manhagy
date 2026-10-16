@@ -80,7 +80,7 @@ export function useApi() {
         })
       }
       else if (response.status === 403 && body?.code === 'module_not_enabled') {
-        await navigateTo('/settings/billing')
+        await navigateTo({ path: '/settings/modules', query: { need: body.module } })
       }
     },
   })

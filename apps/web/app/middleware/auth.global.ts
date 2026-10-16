@@ -23,7 +23,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   }
 
   if (to.meta.module && !store.hasModule(to.meta.module)) {
-    return navigateTo(store.isOwner ? '/settings/billing' : '/')
+    return navigateTo(store.isOwner ? { path: '/settings/modules', query: { need: to.meta.module } } : '/')
   }
 
   if (to.meta.feature && !store.hasFeature(to.meta.feature)) {

@@ -82,7 +82,7 @@ class CenterTest extends TestCase
         $mennah = ['id' => (string) Str::uuid(), 'session_id' => $session['id'], 'learner_id' => $this->students['منة الله']];
         $results = $this->postJson('/api/v1/center/scans', ['scans' => [$yousef, $forged, $mennah]])->assertOk()->json('data');
         $this->assertSame(['ok', 'unknown_card', 'ok'], array_column($results, 'status'));
-        $this->assertSame([0, 6000], [$results[0]['owes'], $results[2]['owes']], 'monthly paid; the session one still owes the session');
+        $this->assertSame([0, 6000], [$results[0]['owes'], $results[2]['owes']], 'a paid month covers the session (on any plan); the other still owes the session');
         $again = $this->postJson('/api/v1/center/scans', ['scans' => [$yousef]])->assertOk()->json('data.0');
         $this->assertSame('ok', $again['status']);
         $this->assertSame(1, DB::table('center_payments')->count(), 'resending a batch adds nothing');

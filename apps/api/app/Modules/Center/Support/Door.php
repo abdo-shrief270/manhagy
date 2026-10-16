@@ -76,14 +76,18 @@ final class Door
         });
     }
 
-    /** What the student still owes for this session (or this month on the monthly plan). */
+    /** What the student still owes for this session, or for this month on the monthly plan (a paid month covers its sessions on any plan). */
     public function owes(Group $group, Session $session, ?Member $member, string $learnerId): int
     {
-        if ($member !== null && $member->plan === 'monthly' && $group->monthly_fee) {
+        if ($group->monthly_fee) {
             $period = $session->starts_at->copy()->setTimezone(ShopDay::TZ)->format('Y-m');
-            $paid = (int) Payment::query()->where('group_id', $group->id)->where('learner_id', $learnerId)->where('kind', 'month')->where('period', $period)->sum('amount');
-
-            return max(0, $group->monthly_fee - $paid);
+            $paidMonth = (int) Payment::query()->where('group_id', $group->id)->where('learner_id', $learnerId)->where('kind', 'month')->where('period', $period)->sum('amount');
+            if ($paidMonth >= $group->monthly_fee) {
+                return 0;
+            }
+            if ($member !== null && $member->plan === 'monthly') {
+                return $group->monthly_fee - $paidMonth;
+            }
         }
         $paid = (int) Payment::query()->where('session_id', $session->id)->where('learner_id', $learnerId)->sum('amount');
 

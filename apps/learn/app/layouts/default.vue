@@ -71,6 +71,7 @@ const menu = computed<DropdownMenuItem[][]>(() => [
     { label: 'حسابي وأجهزتي', icon: 'i-lucide-user', to: '/me' },
     { label: 'عندي كود', icon: 'i-lucide-ticket', to: '/redeem' },
     { label: 'المحفظة', icon: 'i-lucide-wallet', to: '/wallet' },
+    { label: 'كارنيه السنتر', icon: 'i-lucide-qr-code', to: '/card' },
   ],
   [{ label: 'خروج', icon: 'i-lucide-log-out', color: 'error' as const, onSelect: () => learner.logout() }],
 ])
