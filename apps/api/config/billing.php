@@ -111,14 +111,17 @@ return [
             'monthly' => 199900,
             'lifetime' => 3500000,
             'maintenance' => 600000,
-            'modules' => [],
+            'modules' => ['center'],
         ],
     ],
 
-    // What an account says it needs when it registers: each need is covered by optional modules
-    // (`Support\Needs`). Empty until the first optional module (السنتر، البث، التطبيق…) is built.
-    'needs' => [],
+    // What an account says it needs when it registers: each need is covered by optional modules (`Support\Needs`).
+    'needs' => [
+        'center' => ['label' => 'مجموعات وحضور', 'description' => 'مواعيد المجموعات، الحضور بكارنيه QR، وتحصيل الحصة أو الشهر', 'icon' => 'i-lucide-users', 'modules' => ['center'], 'types' => ['center']],
+    ],
 
     // Optional modules bought on top of a plan (monthly).
-    'modules' => [],
+    'modules' => [
+        'center' => 29900,
+    ],
 ];

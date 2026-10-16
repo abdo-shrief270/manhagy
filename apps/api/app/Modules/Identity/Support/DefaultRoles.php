@@ -14,7 +14,7 @@ final class DefaultRoles
     private const ASSISTANT = [
         'messages.send',
         // Later modules: grading, answering questions, codes, unlocking devices…
-        'assessments.grade', 'engagement.answer', 'codes.manage', 'learners.view', 'learners.devices', 'courses.view', 'access.enroll', 'wallet.view', 'wallet.confirm', 'codes.view', 'assessments.view', 'reports.view', 'reports.parents',
+        'assessments.grade', 'engagement.answer', 'codes.manage', 'learners.view', 'learners.devices', 'courses.view', 'access.enroll', 'wallet.view', 'wallet.confirm', 'codes.view', 'assessments.view', 'reports.view', 'reports.parents', 'center.door',
     ];
 
     /**
