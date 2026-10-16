@@ -40,7 +40,7 @@ class AccountKindsTest extends TestCase
     {
         $types = collect($this->getJson('/api/v1/shop-types')->assertOk()->json('data'))->keyBy('value');
 
-        $this->assertSame(['teacher', 'center'], $types->keys()->all(), 'the institution kinds are not open yet');
+        $this->assertSame(['teacher', 'center', 'trainer'], $types->keys()->all(), 'the institution kinds are not open yet');
         $demo = fn (string $type) => collect($types[$type]['modules'])->firstWhere('key', 'demo');
         $this->assertTrue($demo('teacher')['trial']);
         $this->assertFalse($demo('center')['trial'], 'centers see it but don\'t start on it');

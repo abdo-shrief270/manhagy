@@ -5,6 +5,7 @@ use App\Modules\Billing\Http\Controllers\Admin\AdminAuthController;
 use App\Modules\Billing\Http\Controllers\Admin\AdminCouponController;
 use App\Modules\Billing\Http\Controllers\Admin\AdminCurriculumController;
 use App\Modules\Billing\Http\Controllers\Admin\AdminFeedbackController;
+use App\Modules\Billing\Http\Controllers\Admin\AdminMarketController;
 use App\Modules\Billing\Http\Controllers\Admin\AdminModuleController;
 use App\Modules\Billing\Http\Controllers\Admin\AdminMonitoringController;
 use App\Modules\Billing\Http\Controllers\Admin\AdminPaymentController;
@@ -86,6 +87,15 @@ Route::prefix('admin')->middleware(AdminGate::class)->group(function (): void {
             Route::post('/', 'store');
             Route::patch('{node}', 'update')->whereUuid('node');
             Route::delete('{node}', 'destroy')->whereUuid('node');
+        });
+
+        Route::controller(AdminMarketController::class)->prefix('market')->group(function (): void {
+            Route::get('commissions', 'owing');
+            Route::get('commissions/{tenant}', 'commissions');
+            Route::post('commissions/{tenant}/settle', 'settle');
+            Route::post('commissions/{commission}/void', 'void')->whereUuid('commission');
+            Route::get('reviews', 'reviews');
+            Route::patch('reviews/{review}', 'updateReview')->whereUuid('review');
         });
 
         Route::controller(AdminMonitoringController::class)->group(function (): void {

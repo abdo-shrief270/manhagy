@@ -50,4 +50,20 @@ final class EnrollmentBook implements Enrollments
     {
         return Enrollment::query()->where('learner_id', $learnerId)->active()->distinct()->pluck('course_id')->all();
     }
+
+    public function wasEnrolled(string $learnerId, string $courseId): bool
+    {
+        return Enrollment::query()->where('learner_id', $learnerId)->where('course_id', $courseId)->whereNull('revoked_at')->exists();
+    }
+
+    public function studentCounts(array $courseIds): array
+    {
+        if ($courseIds === []) {
+            return [];
+        }
+
+        return Enrollment::withoutTenancy()->whereIn('course_id', $courseIds)->whereNull('revoked_at')
+            ->selectRaw('course_id, count(distinct learner_id) as students')->groupBy('course_id')
+            ->pluck('students', 'course_id')->map(fn ($n) => (int) $n)->all();
+    }
 }

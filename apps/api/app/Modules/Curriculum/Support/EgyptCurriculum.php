@@ -66,6 +66,35 @@ final class EgyptCurriculum
         ];
     }
 
+    /** @return array<string, list<string>> skills fields => skills (trainers' courses, for anyone) */
+    public static function skills(): array
+    {
+        return [
+            'برمجة وتطوير' => ['تطوير مواقع', 'Python', 'تطبيقات موبايل', 'قواعد بيانات', 'ذكاء اصطناعي وتحليل بيانات', 'أساسيات البرمجة للأطفال'],
+            'تصميم ومونتاج' => ['جرافيك ديزاين', 'UI / UX', 'مونتاج فيديو', 'تصوير', 'تصميم داخلي وأوتوكاد'],
+            'تسويق وبيزنس' => ['تسويق إلكتروني', 'إعلانات السوشيال ميديا', 'كتابة محتوى', 'مبيعات وخدمة عملاء', 'ريادة أعمال', 'إدارة مشروعات'],
+            'محاسبة ومكتب' => ['محاسبة', 'Excel', 'ICDL ومهارات الكمبيوتر', 'ضرائب ومحاسبة مالية', 'موارد بشرية'],
+            'لغات' => ['إنجليزي محادثة', 'IELTS / TOEFL', 'ألماني', 'فرنساوي', 'إيطالي', 'لغة عربية لغير الناطقين بها'],
+            'قرآن وعلوم شرعية' => ['تحفيظ القرآن', 'تجويد', 'فقه وعلوم شرعية'],
+            'هوايات ومهارات' => ['رسم', 'موسيقى', 'خط عربي', 'تنمية بشرية ومهارات شخصية', 'طبخ'],
+        ];
+    }
+
+    /** @return int how many skills fields and skills were added */
+    public static function seedSkills(): int
+    {
+        $added = 0;
+        $f = 0;
+        foreach (self::skills() as $field => $skills) {
+            $fieldId = self::ensure(null, 'field', $field, 200 + $f++, $added);
+            foreach ($skills as $s => $skill) {
+                self::ensure($fieldId, 'skill', $skill, $s, $added);
+            }
+        }
+
+        return $added;
+    }
+
     /** @return int how many nodes were added */
     public static function seed(): int
     {

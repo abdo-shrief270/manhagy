@@ -20,4 +20,15 @@ interface Enrollments
 
     /** @return list<string> */
     public function activeCourseIds(string $learnerId): array;
+
+    /** The student was ever given the course (expired counts, revoked doesn't). */
+    public function wasEnrolled(string $learnerId, string $courseId): bool;
+
+    /**
+     * Students ever enrolled (not revoked) per course, across accounts (the marketplace).
+     *
+     * @param  list<string>  $courseIds
+     * @return array<string, int>
+     */
+    public function studentCounts(array $courseIds): array;
 }

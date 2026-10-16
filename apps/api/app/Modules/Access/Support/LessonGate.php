@@ -30,4 +30,10 @@ final class LessonGate implements LessonAccess
         $row = LessonProgress::query()->firstOrCreate(['learner_id' => $learnerId, 'lesson_id' => $lessonId]);
         $row->update(['completed_at' => $row->completed_at ?? now(), 'last_viewed_at' => now()]);
     }
+
+    public function completed(string $learnerId, array $lessonIds): array
+    {
+        return $lessonIds === [] ? [] : LessonProgress::query()->where('learner_id', $learnerId)->whereIn('lesson_id', $lessonIds)
+            ->whereNotNull('completed_at')->pluck('lesson_id')->all();
+    }
 }

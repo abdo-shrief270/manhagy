@@ -9,7 +9,7 @@ final class Slugs
 {
     public const RESERVED = [
         'www', 'app', 'admin', 'api', 'mail', 'email', 'smtp', 'ftp', 'learn', 'market', 'souq', 'souk', 'store', 'shop',
-        'static', 'cdn', 'media', 'assets', 'help', 'support', 'blog', 'docs', 'site', 'status', 'manhagy', 'manhaji', 'test', 'demo',
+        'static', 'cdn', 'media', 'assets', 'help', 'support', 'blog', 'docs', 'site', 'status', 'manhagy', 'manhaji', 'test', 'demo', 'courses', 'certificates', 'verify',
     ];
 
     public const PATTERN = '/^[a-z0-9](?:[a-z0-9-]{1,28})[a-z0-9]$/';

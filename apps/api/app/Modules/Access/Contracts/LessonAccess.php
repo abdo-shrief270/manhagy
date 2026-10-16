@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Access\Contracts;
 
-/** For other modules (Assessments): may the student open this lesson now, and marking it done. */
+/** For other modules (Assessments, Certificates): may the student open this lesson now, marking it done, what they finished. */
 interface LessonAccess
 {
     /** What to tell the student for each lock reason. */
@@ -22,4 +22,10 @@ interface LessonAccess
     public function lockReason(string $learnerId, string $lessonId): ?string;
 
     public function complete(string $learnerId, string $lessonId): void;
+
+    /**
+     * @param  list<string>  $lessonIds
+     * @return list<string> those the student completed
+     */
+    public function completed(string $learnerId, array $lessonIds): array;
 }

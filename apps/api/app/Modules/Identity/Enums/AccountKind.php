@@ -6,13 +6,14 @@ namespace App\Modules\Identity\Enums;
 
 /**
  * What an account is (a teacher, a center, and later the LMS institutions). Each optional module
- * says which kinds it is for (ModuleManifest::$shopTypes). Only teachers and centers can sign up
- * for now; the institution kinds exist so the data and permissions are ready for the LMS phase.
+ * says which kinds it is for (ModuleManifest::$shopTypes). Teachers, centers and skills
+ * trainers can sign up; the institution kinds exist so the data and permissions are ready for the LMS phase.
  */
 enum AccountKind: string
 {
     case Teacher = 'teacher';
     case Center = 'center';
+    case Trainer = 'trainer';
     case Institute = 'institute';
     case School = 'school';
     case College = 'college';
@@ -23,6 +24,7 @@ enum AccountKind: string
         return match ($this) {
             self::Teacher => 'مدرس',
             self::Center => 'سنتر',
+            self::Trainer => 'مدرب مهارات',
             self::Institute => 'معهد',
             self::School => 'مدرسة',
             self::College => 'كلية',
@@ -35,6 +37,7 @@ enum AccountKind: string
         return match ($this) {
             self::Teacher => 'بتشرح لطلابك أونلاين أو في سنتر',
             self::Center => 'قاعات ومدرسين ومجموعات',
+            self::Trainer => 'برمجة، جرافيك، لغات، تسويق… لأي حد عايز يتعلّم',
             self::Institute => 'معهد أو أكاديمية',
             self::School => 'مدرسة بفصولها ومدرسينها',
             self::College => 'كلية بأقسامها ومقرراتها',
@@ -45,7 +48,7 @@ enum AccountKind: string
     /** @return list<self> what an account can pick today */
     public static function selectable(): array
     {
-        return [self::Teacher, self::Center];
+        return [self::Teacher, self::Center, self::Trainer];
     }
 
     /** @return list<self> */

@@ -10,7 +10,7 @@ interface CurriculumAdmin
     public const STATUSES = ['published', 'review', 'hidden'];
 
     /** The tree's levels (Enums\NodeKind values). */
-    public const KINDS = ['stage', 'grade', 'track', 'subject', 'university', 'faculty', 'department', 'year', 'course', 'unit', 'lesson'];
+    public const KINDS = ['stage', 'grade', 'track', 'subject', 'university', 'faculty', 'department', 'year', 'course', 'unit', 'lesson', 'field', 'skill'];
 
     /**
      * Children of a node (null = roots) in every status with how many children each has, or with
