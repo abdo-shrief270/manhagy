@@ -1,0 +1,14 @@
+# Use when the server already runs nginx on ports 80/443 for other sites.
+# nginx keeps the public ports and TLS (a wildcard certificate for *.<SITES_HOST>, see docs/DEPLOY.md);
+# Caddy listens on localhost only. Enabled by COMPOSE_FILE=compose.yml:compose.nginx.yml in .env.
+services:
+  caddy:
+    environment:
+      APP_ADDRESS: http://${APP_DOMAIN}
+      ADMIN_ADDRESS: http://${ADMIN_DOMAIN:-admin.invalid}
+      LANDING_ADDRESS: http://${SITES_HOST}, http://www.${SITES_HOST}
+      SITES_ADDRESS: http://*.${SITES_HOST}
+      SITES_TLS: none
+      TRUSTED_PROXIES: private_ranges
+    ports: !override
+      - "127.0.0.1:${EDGE_PORT:-8088}:80"

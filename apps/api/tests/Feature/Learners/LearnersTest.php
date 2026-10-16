@@ -62,6 +62,12 @@ class LearnersTest extends TestCase
         $public = $this->getJson('/api/v1/public/sites/MR-MOHAMED')->assertOk()->json('data');
         $this->assertSame(['أ. محمد سامي — فيزياء', 'محل 1', true], [$public['title'], $public['teacher'], $public['registration_open']]);
         $this->getJson('/api/v1/public/sites/nobody-here')->assertNotFound();
+
+        // The edge gets certificates only for platforms that exist.
+        $this->get('/api/v1/public/sites-tls?domain=mr-mohamed.manhagy.online')->assertOk();
+        $this->get('/api/v1/public/sites-tls?domain=nobody.manhagy.online')->assertNotFound();
+        $this->get('/api/v1/public/sites-tls?domain=a.mr-mohamed.manhagy.online')->assertNotFound();
+        $this->get('/api/v1/public/sites-tls?domain=mr-mohamed.evil.com')->assertNotFound();
     }
 
     public function test_a_student_registers_and_uses_their_session(): void

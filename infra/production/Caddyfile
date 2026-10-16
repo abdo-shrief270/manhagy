@@ -1,0 +1,152 @@
+{
+	email {$ACME_EMAIL}
+	servers {
+		# Behind a host nginx (compose.nginx.yml) this is private_ranges, so the
+		# X-Forwarded-Proto: https that nginx sets reaches Laravel unchanged.
+		trusted_proxies static {$TRUSTED_PROXIES:127.0.0.1/32}
+	}
+	# The students' platforms ({slug}.<SITES_HOST>): a certificate on a platform's first visit,
+	# only after the API says that platform exists.
+	on_demand_tls {
+		ask http://api/api/v1/public/sites-tls
+	}
+}
+
+(sites-tls-none) {
+}
+(sites-tls-on-demand) {
+	tls {
+		on_demand
+	}
+}
+
+(security-headers) {
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}
+
+(spa-assets) {
+	# Nuxt build assets never change once built (hashed names); not the build manifest.
+	@assets {
+		path /_nuxt/*
+		not path /_nuxt/builds/*
+	}
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+	@fresh path /_nuxt/builds/*
+	header @fresh Cache-Control "no-cache"
+}
+
+# The teachers' / centers' app and the API (APP_DOMAIN, e.g. app.manhagy.online).
+{$APP_ADDRESS} {
+	encode zstd gzip
+	import security-headers
+
+	# The admin API is only served on the admin domain.
+	@adminapi path /api/v1/admin /api/v1/admin/*
+	handle @adminapi {
+		respond 404
+	}
+
+	# A lesson's PDF opens inside the students' site (an iframe on {slug}.<SITES_HOST>).
+	@pdf path /api/v1/media/files/*
+	handle @pdf {
+		header -X-Frame-Options
+		header Content-Security-Policy "frame-ancestors https://*.{$SITES_HOST}"
+		reverse_proxy api:80
+	}
+
+	@api path /api/* /up
+	handle @api {
+		reverse_proxy api:80
+	}
+
+	import spa-assets
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}
+
+# The students' platforms: one app for every teacher, the teacher picked by the host. Only the
+# public and the student's part of the API. Exact names (app, admin, the landing page) win over this.
+{$SITES_ADDRESS} {
+	import sites-tls-{$SITES_TLS:on-demand}
+	encode zstd gzip
+	import security-headers
+	header X-Robots-Tag "noindex"
+
+	@learnerapi path /api/v1/public/* /api/v1/learner/*
+	handle @learnerapi {
+		reverse_proxy api:80
+	}
+	@otherapi path /api/* /up
+	handle @otherapi {
+		respond 404
+	}
+
+	import spa-assets
+	handle {
+		root * /srv-learn
+		try_files {path} /index.html
+		file_server
+	}
+}
+
+# The teachers' landing page (the root domain + www). Without one it answers nowhere.
+{$LANDING_ADDRESS:http://landing.invalid} {
+	encode zstd gzip
+	import security-headers
+
+	@www host www.{$LANDING_DOMAIN:landing.invalid}
+	redir @www {scheme}://{$LANDING_DOMAIN:landing.invalid}{uri} permanent
+
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=604800"
+
+	handle {
+		root * /srv-site
+		try_files {path} {path}.html {path}/index.html
+		file_server
+	}
+}
+
+# The platform admin panel, on its own domain (ADMIN_DOMAIN). Without one it answers nowhere.
+{$ADMIN_ADDRESS:http://admin.invalid} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "no-referrer"
+		X-Robots-Tag "noindex, nofollow"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+	# Content-Security-Policy with the hashes of this build's inline scripts (written at image build).
+	import /etc/caddy/admin-csp.caddy
+
+	@adminapi path /api/v1/admin /api/v1/admin/*
+	handle @adminapi {
+		reverse_proxy api:80
+	}
+	@otherapi path /api/* /up
+	handle @otherapi {
+		respond 404
+	}
+
+	@assets path /_nuxt/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+
+	handle {
+		root * /srv-admin
+		try_files {path} /index.html
+		file_server
+	}
+}

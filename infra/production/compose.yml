@@ -1,0 +1,129 @@
+# Production stack. Run from this directory:  ./deploy.sh
+# Secrets live in ./.env (created by ./init.sh, never committed).
+name: manhagy
+
+x-php: &php
+  build:
+    context: ../..
+    dockerfile: infra/production/Dockerfile.api
+  image: manhagy-api:latest
+  env_file: .env
+  restart: unless-stopped
+  volumes:
+    - storage:/app/storage
+  depends_on:
+    pgsql:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  # The edge: HTTPS, the three apps (teachers, students on *.<domain>, admins), the landing page, the API.
+  caddy:
+    build:
+      context: ../..
+      dockerfile: infra/production/Dockerfile.web
+      args:
+        APP_VERSION: ${APP_VERSION:-}
+        SITES_HOST: ${SITES_HOST}
+        SITE_URL: https://${SITES_HOST}
+    image: manhagy-web:latest
+    restart: unless-stopped
+    environment:
+      APP_ADDRESS: ${APP_DOMAIN}
+      ADMIN_ADDRESS: ${ADMIN_DOMAIN:-http://admin.invalid}
+      LANDING_ADDRESS: ${LANDING_ADDRESS:-http://landing.invalid}
+      LANDING_DOMAIN: ${SITES_HOST}
+      SITES_ADDRESS: ${SITES_ADDRESS:-*.${SITES_HOST}}
+      SITES_TLS: ${SITES_TLS:-on-demand}
+      SITES_HOST: ${SITES_HOST}
+      ACME_EMAIL: ${ACME_EMAIL}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+
+  api:
+    <<: *php
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://localhost/up') === false ? 1 : 0);"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    <<: *php
+    command: ["php", "artisan", "horizon"]
+    stop_grace_period: 60s
+    healthcheck:
+      disable: true
+
+  scheduler:
+    <<: *php
+    command: ["php", "artisan", "schedule:work"]
+    healthcheck:
+      disable: true
+
+  pgsql:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 5s
+      retries: 20
+
+  # Daily pg_dump + the stored files into ./backups (kept BACKUP_KEEP_DAYS), optionally copied off-site with rclone.
+  backup:
+    build:
+      context: .
+      dockerfile: Dockerfile.backup
+    image: manhagy-backup:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PGHOST: pgsql
+      PGPORT: "5432"
+      PGUSER: ${DB_USERNAME}
+      PGPASSWORD: ${DB_PASSWORD}
+      PGDATABASE: ${DB_DATABASE}
+      TZ: ${BACKUP_TZ:-Africa/Cairo}
+    volumes:
+      - ./backups:/backups
+      - storage:/storage:ro
+    depends_on:
+      pgsql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "test -n \"$$(find /backups -maxdepth 1 -name .last-success -mmin -1500)\""]
+      interval: 5m
+      timeout: 10s
+      start_period: 30m
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      retries: 20
+
+volumes:
+  pgdata:
+  redisdata:
+  storage:
+  caddy_data:
+  caddy_config:

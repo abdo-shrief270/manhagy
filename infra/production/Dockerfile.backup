@@ -1,0 +1,13 @@
+# Daily backups: pg_dump (same major version as the pgsql service) + a tar of the stored files,
+# and rclone for an optional off-site copy. Build context: infra/production.
+FROM postgres:17-alpine
+
+RUN apk add --no-cache rclone tzdata
+
+COPY backup/dump.sh /usr/local/bin/manhagy-backup
+COPY backup/schedule.sh /usr/local/bin/manhagy-backup-schedule
+RUN chmod +x /usr/local/bin/manhagy-backup /usr/local/bin/manhagy-backup-schedule
+
+VOLUME /backups
+ENTRYPOINT []
+CMD ["manhagy-backup-schedule"]
