@@ -14,11 +14,10 @@ export interface Learner {
   last_seen_at: string | null
 }
 
-export interface LearnerDetail extends Learner {
-  notes?: string | null
-  blocked_reason?: string | null
-  devices_list?: never
-  device_items?: never
+export interface LearnerDetail extends Omit<Learner, 'devices'> {
+  notes: string | null
+  blocked_reason: string | null
+  devices: { id: string, name: string, added_at: string, last_seen_at: string | null }[]
 }
 
 export interface CourseSummary {

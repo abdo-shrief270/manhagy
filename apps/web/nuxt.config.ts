@@ -61,38 +61,31 @@ export default defineNuxtConfig({
   icon: {
     clientBundle: {
       scan: true,
+      // Every icon named in the API's manifests / notifications and in .ts / script code (the scan misses those).
+      // Regenerate: grep -rhoE "i-lucide-[a-z0-9-]+" ../api/app/Modules app | sort -u (from apps/web)
       icons: [
-        'lucide:gauge', 'lucide:chevron-down', 'lucide:shopping-bag', 'lucide:phone-call', 'lucide:unlink', 'lucide:settings', 'lucide:arrow-right', 'lucide:image-plus', 'lucide:external-link', 'lucide:upload', 'lucide:image', 'lucide:fingerprint', 'lucide:key-round', 'lucide:clock-alert', 'lucide:x', 'lucide:trending-down', 'lucide:minus', 'lucide:package-x', 'lucide:lock-open', 'lucide:circle', 'lucide:arrow-left-right', 'lucide:toggle-right', 'lucide:calendar-clock', 'lucide:chart-column', 'lucide:credit-card',
-        'lucide:file-check', 'lucide:git-compare-arrows', 'lucide:message-circle', 'lucide:package', 'lucide:package-search',
-        'lucide:receipt', 'lucide:ship', 'lucide:shopping-cart', 'lucide:smartphone', 'lucide:store',
-        'lucide:truck', 'lucide:undo-2', 'lucide:users', 'lucide:wallet', 'lucide:warehouse', 'lucide:wrench',
-        'lucide:box', 'lucide:shopping-basket', 'lucide:locate-fixed', 'lucide:map-pin', 'lucide:handshake', 'lucide:receipt-text', 'lucide:tag', 'lucide:tags', 'lucide:percent', 'lucide:scan-line',
-        // Icons named in .ts files / script blocks, which the scan doesn't see.
-        'lucide:package-plus', 'lucide:clipboard-check', 'lucide:file-spreadsheet', 'lucide:triangle-alert', 'lucide:circle-x',
-        'lucide:layout-dashboard', 'lucide:notebook-pen', 'lucide:hand-coins', 'lucide:trending-up', 'lucide:scan-barcode', 'lucide:user-plus', 'lucide:check-circle', 'lucide:alarm-clock', 'lucide:banknote', 'lucide:credit-card', 'lucide:smartphone', 'lucide:circle-dot', 'lucide:headphones', 'lucide:boxes', 'lucide:ship', 'lucide:store', 'lucide:hourglass', 'lucide:calendar-clock', 'lucide:lock', 'lucide:ban', 'lucide:shield', 'lucide:sun', 'lucide:moon', 'lucide:log-out', 'lucide:banknote',
-        // Notification icons come from the API (Notifications\Listeners).
-        'lucide:inbox', 'lucide:circle-check', 'lucide:hammer', 'lucide:package-check', 'lucide:check-check', 'lucide:ban', 'lucide:bell',
-        // Customer privacy (customer page consent line / data menu, /privacy sections).
-        'lucide:shield-check', 'lucide:shield-alert', 'lucide:shield-question', 'lucide:user-x', 'lucide:download',
-        'lucide:database', 'lucide:target', 'lucide:eye', 'lucide:clock', 'lucide:user-check', 'lucide:phone', 'lucide:lock', 'lucide:chart-line',
-        // Security page (navigation, device icons, conditional shield icons).
-        'lucide:lock-keyhole', 'lucide:monitor', 'lucide:tablet', 'lucide:shield', 'lucide:shield-check', 'lucide:shield-alert',
-        'lucide:wifi-off', 'lucide:cloud-upload', 'lucide:cloud-alert', 'lucide:refresh-cw',
-        // «ابدأ من هنا» step icons (from the API) and «ابعت ملاحظة» (menu / Ctrl+K / toast).
-        'lucide:boxes', 'lucide:package-plus', 'lucide:file-spreadsheet', 'lucide:shield-check', 'lucide:rocket',
-        'lucide:message-square-heart', 'lucide:heart-handshake', 'lucide:bug', 'lucide:lightbulb', 'lucide:circle-help',
-        // Services (wallets / airtime): operations, tabs, row menus, the account form.
-        'lucide:send', 'lucide:bell-ring', 'lucide:bell-off', 'lucide:smartphone-charging', 'lucide:wallet-cards', 'lucide:list', 'lucide:printer', 'lucide:pencil',
-        'lucide:arrow-down-to-line', 'lucide:arrow-up-from-line', 'lucide:check', 'lucide:ellipsis-vertical', 'lucide:rotate-ccw',
-        // Supplier returns (tabs, settle options, bin line actions).
-        'lucide:layers', 'lucide:file-text', 'lucide:repeat', 'lucide:gift', 'lucide:trash-2', 'lucide:pencil', 'lucide:wallet', 'lucide:banknote',
-        // Used devices (tabs, checklist marks, photo picker).
-        'lucide:list', 'lucide:circle-check', 'lucide:circle-x', 'lucide:circle-dashed', 'lucide:camera', 'lucide:loader-circle',
-        // «نزّل التطبيق» (user menu, Ctrl+K, home card, /settings/app, install steps) and the update toast.
-        'lucide:download', 'lucide:monitor-down', 'lucide:monitor-smartphone', 'lucide:laptop', 'lucide:share', 'lucide:square-plus',
-        'lucide:book-open', 'lucide:copy', 'lucide:star', 'lucide:printer', 'lucide:mouse-pointer-click', 'lucide:history', 'lucide:zap',
-        'lucide:refresh-cw', 'lucide:circle-check', 'lucide:chevron-left', 'lucide:chevron-right', 'lucide:ellipsis-vertical',
-      'lucide:globe', 'lucide:building-2'],
+        'lucide:activity', 'lucide:align-right', 'lucide:archive', 'lucide:arrow-down', 'lucide:arrow-right', 'lucide:arrow-up',
+        'lucide:badge-percent', 'lucide:ban', 'lucide:banknote', 'lucide:bell', 'lucide:bell-off', 'lucide:bell-ring', 'lucide:blocks',
+        'lucide:book-open', 'lucide:book-open-text', 'lucide:book-plus', 'lucide:bug', 'lucide:calendar', 'lucide:calendar-clock',
+        'lucide:camera', 'lucide:chart-column', 'lucide:chart-line', 'lucide:check', 'lucide:check-check', 'lucide:chevron-down',
+        'lucide:chevron-left', 'lucide:chevron-right', 'lucide:chevrons-up-down', 'lucide:circle', 'lucide:circle-check',
+        'lucide:circle-dashed', 'lucide:circle-help', 'lucide:circle-x', 'lucide:clapperboard', 'lucide:clock', 'lucide:copy',
+        'lucide:credit-card', 'lucide:crown', 'lucide:database', 'lucide:download', 'lucide:ellipsis-vertical', 'lucide:eye',
+        'lucide:eye-off', 'lucide:file-spreadsheet', 'lucide:file-text', 'lucide:fingerprint', 'lucide:folder', 'lucide:folder-plus',
+        'lucide:gift', 'lucide:globe', 'lucide:graduation-cap', 'lucide:hand-coins', 'lucide:handshake', 'lucide:heart-handshake',
+        'lucide:history', 'lucide:hourglass', 'lucide:image-plus', 'lucide:image-up', 'lucide:info', 'lucide:key-round',
+        'lucide:layout-dashboard', 'lucide:lightbulb', 'lucide:link', 'lucide:list', 'lucide:list-checks', 'lucide:lock',
+        'lucide:lock-keyhole', 'lucide:log-out', 'lucide:map-pin-off', 'lucide:menu', 'lucide:message-circle',
+        'lucide:message-circle-question', 'lucide:message-square-heart', 'lucide:monitor', 'lucide:monitor-down',
+        'lucide:monitor-smartphone', 'lucide:moon', 'lucide:pen-line', 'lucide:pencil', 'lucide:phone', 'lucide:play', 'lucide:plus',
+        'lucide:presentation', 'lucide:printer', 'lucide:refresh-cw', 'lucide:repeat', 'lucide:rotate-ccw', 'lucide:scale',
+        'lucide:school', 'lucide:search', 'lucide:search-check', 'lucide:send', 'lucide:settings', 'lucide:share', 'lucide:shield',
+        'lucide:shield-alert', 'lucide:shield-check', 'lucide:sliders-horizontal', 'lucide:smartphone', 'lucide:sparkles',
+        'lucide:square-plus', 'lucide:star', 'lucide:store', 'lucide:sun', 'lucide:tablet', 'lucide:target', 'lucide:text-cursor-input',
+        'lucide:ticket', 'lucide:ticket-plus', 'lucide:timer', 'lucide:toggle-right', 'lucide:trash-2', 'lucide:triangle-alert',
+        'lucide:trophy', 'lucide:undo-2', 'lucide:upload', 'lucide:user', 'lucide:user-check', 'lucide:user-plus', 'lucide:user-x',
+        'lucide:users-round', 'lucide:wallet', 'lucide:x',
+      ],
     },
   },
 

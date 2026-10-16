@@ -19,7 +19,7 @@ final class ParentReportController
     public function index(Request $request): JsonResponse
     {
         $data = $request->validate(['days' => ['nullable', 'integer', 'min:1', 'max:60']]);
-        $days = $data['days'] ?? 7;
+        $days = (int) ($data['days'] ?? 7);
         $t = $this->tenant->idOrFail();
         $students = DB::table('learner_profiles as p')->join('learners as l', 'l.id', '=', 'p.learner_id')
             ->where('p.tenant_id', $t)->whereNotNull('p.parent_phone')->whereNull('p.blocked_at')
@@ -42,7 +42,7 @@ final class ParentReportController
     public function show(Request $request, string $learner): JsonResponse
     {
         $data = $request->validate(['days' => ['nullable', 'integer', 'min:1', 'max:60']]);
-        $days = $data['days'] ?? 7;
+        $days = (int) ($data['days'] ?? 7);
         $report = $this->reports->build($this->tenant->idOrFail(), $learner, $days) ?? abort(404);
         $link = $this->reports->link($this->tenant->idOrFail(), $learner, $days);
 

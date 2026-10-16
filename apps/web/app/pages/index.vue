@@ -132,7 +132,7 @@
             </NuxtLink>
             <div class="flex items-center justify-between rounded-(--ui-radius) p-2">
               <span class="flex items-center gap-2"><UIcon name="i-lucide-list-checks" class="size-4" /> امتحانات الأسبوع ده</span>
-              <span class="num font-bold">{{ dash.exams.attempts_week }}<span v-if="dash.exams.average_percent_week !== null" class="text-(--ui-text-muted) font-normal"> · متوسط {{ dash.exams.average_percent_week }}%</span></span>
+              <span class="font-bold"><span class="num">{{ dash.exams.attempts_week }}</span><span v-if="dash.exams.average_percent_week !== null" class="text-(--ui-text-muted) font-normal"> · متوسط <span class="num">{{ dash.exams.average_percent_week }}%</span></span></span>
             </div>
             <div class="flex items-center justify-between rounded-(--ui-radius) p-2">
               <span class="flex items-center gap-2"><UIcon name="i-lucide-timer" class="size-4" /> بيمتحنوا دلوقتي</span>

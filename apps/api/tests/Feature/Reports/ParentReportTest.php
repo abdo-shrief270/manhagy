@@ -23,7 +23,7 @@ class ParentReportTest extends TestCase
         $this->travel(80)->seconds();
         $this->asStudent()->postJson("/api/v1/learner/playback/{$session}/beat", ['position' => 80, 'playing' => true])->assertOk();
 
-        $list = $this->asTeacher()->getJson('/api/v1/parent-reports')->assertOk()->json('data');
+        $list = $this->asTeacher()->getJson('/api/v1/parent-reports?days=7')->assertOk()->json('data');
         $this->assertCount(1, $list);
         $message = $list[0]['message'];
         $this->assertSame(['يوسف أحمد', '+201112345678', 'فيزياء', '1 درس (1 دقيقة)'], [$message['student'], $list[0]['parent_phone'], $message['subject'], $message['watched']]);

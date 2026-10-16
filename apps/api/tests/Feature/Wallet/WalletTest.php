@@ -24,7 +24,8 @@ class WalletTest extends TestCase
     private function sendTransfer(int $amount = 50000)
     {
         return $this->asStudent()->post('/api/v1/learner/wallet/topups', [
-            'amount' => $amount, 'method' => 'instapay', 'reference' => 'yousef@instapay', 'proof' => UploadedFile::fake()->image('proof.jpg', 800, 1400),
+            // A multipart form: every field arrives as text.
+            'amount' => (string) $amount, 'method' => 'instapay', 'reference' => 'yousef@instapay', 'proof' => UploadedFile::fake()->image('proof.jpg', 800, 1400),
         ], ['Accept' => 'application/json']);
     }
 

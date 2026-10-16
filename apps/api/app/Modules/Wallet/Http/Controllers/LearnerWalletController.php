@@ -58,6 +58,7 @@ final class LearnerWalletController
             'reference' => ['nullable', 'string', 'max:64'],
             'proof' => ['required', 'image', 'max:5120'],
         ], [], ['amount' => 'المبلغ', 'proof' => 'صورة التحويل']);
+        $data['amount'] = (int) $data['amount']; // a multipart form sends it as text
         if (WalletTopup::query()->where('learner_id', $learner['learner_id'])->where('status', 'pending')->count() >= 3) {
             throw new DomainRuleException('عندك 3 تحويلات لسه بتتراجع. استنى لما يتأكدوا.', 'topups_pending');
         }
