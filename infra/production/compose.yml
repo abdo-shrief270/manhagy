@@ -32,6 +32,7 @@ services:
     environment:
       APP_ADDRESS: ${APP_DOMAIN}
       ADMIN_ADDRESS: ${ADMIN_DOMAIN:-http://admin.invalid}
+      MARKET_ADDRESS: ${MARKET_DOMAIN:-http://market.invalid}
       LANDING_ADDRESS: ${LANDING_ADDRESS:-http://landing.invalid}
       LANDING_DOMAIN: ${SITES_HOST}
       SITES_ADDRESS: ${SITES_ADDRESS:-*.${SITES_HOST}}
@@ -55,6 +56,20 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
+
+  # «سوق منهجي» (apps/market): server-rendered for search engines, on MARKET_DOMAIN.
+  market:
+    build:
+      context: ../..
+      dockerfile: infra/production/Dockerfile.market
+    image: manhagy-market:latest
+    restart: unless-stopped
+    environment:
+      NUXT_API_INTERNAL: http://api/api/v1
+      NUXT_PUBLIC_MARKET_URL: https://${MARKET_DOMAIN:-market.invalid}
+      NUXT_PUBLIC_SITE_URL: https://${SITES_HOST}
+    depends_on:
+      - api
 
   worker:
     <<: *php

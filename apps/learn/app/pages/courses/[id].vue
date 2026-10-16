@@ -57,6 +57,11 @@
           </component>
         </div>
       </div>
+
+      <template v-if="course.enrolled">
+        <CourseCertificate :course-id="course.id" />
+        <CourseReview :course-id="course.id" />
+      </template>
     </template>
 
     <UModal v-model:open="buyOpen" title="اشترك من المحفظة">
@@ -94,7 +99,7 @@ async function buy() {
   buying.value = true
   error.value = null
   try {
-    await api(`/learner/courses/${id}/buy`, { method: 'POST' })
+    await api(`/learner/courses/${id}/buy`, { method: 'POST', body: { via: viaFor(useSite().slug.value, id) } })
     buyOpen.value = false
     toast.add({ color: 'success', title: 'اشتركت 🎉 يلا نبدأ' })
     await refresh()

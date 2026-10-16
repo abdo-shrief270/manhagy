@@ -116,6 +116,22 @@
 	}
 }
 
+# «سوق منهجي» (MARKET_DOMAIN, e.g. courses.manhagy.online): its Nuxt server. An exact name, so it wins
+# over the students' wildcard on the same root. Without one it answers nowhere.
+{$MARKET_ADDRESS:http://market.invalid} {
+	encode zstd gzip
+	import security-headers
+
+	@assets path /_nuxt/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+
+	handle {
+		reverse_proxy market:3000 {
+			header_up X-Forwarded-For {client_ip}
+		}
+	}
+}
+
 # The platform admin panel, on its own domain (ADMIN_DOMAIN). Without one it answers nowhere.
 {$ADMIN_ADDRESS:http://admin.invalid} {
 	encode zstd gzip

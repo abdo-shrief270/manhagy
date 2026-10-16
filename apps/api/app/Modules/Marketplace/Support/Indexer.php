@@ -135,8 +135,9 @@ final class Indexer
             return [];
         }
 
+        // `average`, not `rating`: the model casts `rating` to an integer.
         return CourseReview::withoutTenancy()->whereIn('course_id', $courseIds)->where('hidden', false)
-            ->selectRaw('course_id, avg(rating) as rating, count(*) as reviews')->groupBy('course_id')->get()
-            ->mapWithKeys(fn ($r) => [$r->course_id => ['rating' => round((float) $r->rating, 2), 'reviews' => (int) $r->reviews]])->all();
+            ->selectRaw('course_id, avg(rating) as average, count(*) as reviews')->groupBy('course_id')->get()
+            ->mapWithKeys(fn ($r) => [$r->course_id => ['rating' => round((float) $r->average, 2), 'reviews' => (int) $r->reviews]])->all();
     }
 }

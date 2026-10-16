@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/* منهجي's colours: indigo, an amber accent, near-white paper. */
+@theme {
+  --font-sans: "Cairo", ui-sans-serif, system-ui, sans-serif;
+  --color-paper: #fafaff;
+  --color-ink: #0f172a;
+  --color-brand: #4f46e5;
+  --color-brand-dark: #3730a3;
+  --color-brand-soft: #eef2ff;
+  --color-accent: #f59e0b;
+  --color-line: #e2e8f0;
+  --color-muted: #64748b;
+  --color-ok: #047857;
+  --color-bad: #b91c1c;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+  }
+
+  a {
+    @apply text-brand hover:text-brand-dark;
+  }
+}
+
+/* Latin digits in prices and counts. */
+.num {
+  font-variant-numeric: tabular-nums;
+  unicode-bidi: isolate;
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-line bg-white;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-5 py-2.5 font-bold text-white transition hover:bg-brand-dark hover:text-white;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 py-2 font-bold text-ink transition hover:border-brand hover:text-brand;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full border border-line bg-white px-3 py-1.5 text-sm font-semibold text-ink transition hover:border-brand hover:text-brand;
+  }
+
+  .chip-on {
+    @apply border-brand bg-brand text-white hover:text-white;
+  }
+}

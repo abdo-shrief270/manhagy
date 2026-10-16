@@ -37,6 +37,19 @@
       </div>
     </UCard>
 
+    <UCard v-if="certificates.length" :ui="{ body: 'p-0 sm:p-0' }">
+      <template #header>
+        <h2 class="font-bold">
+          شهاداتي
+        </h2>
+      </template>
+      <NuxtLink v-for="c in certificates" :key="c.code" :to="`/certificates/${c.code}`" class="flex items-center gap-3 border-b border-(--ui-border) px-4 py-3 text-sm last:border-0 hover:bg-(--ui-bg-elevated)/60">
+        <UIcon name="i-lucide-award" class="size-5 text-primary" />
+        <span class="flex-1 font-bold">{{ c.course_title }}</span>
+        <span class="text-xs text-(--ui-text-muted)">{{ formatDate(c.issued_at) }}</span>
+      </NuxtLink>
+    </UCard>
+
     <UButton block color="error" variant="soft" icon="i-lucide-log-out" label="خروج" @click="learner.logout()" />
   </div>
 </template>
@@ -54,6 +67,8 @@ const name = ref(me.value?.name ?? '')
 const parent = ref(localPhone(me.value?.parent_phone))
 const saving = ref(false)
 const error = ref<string | null>(null)
+const { data: certificateList } = await useAsyncData('my-certificates', async () => (await api<{ data: { code: string, course_title: string, issued_at: string }[] }>('/learner/certificates')).data)
+const certificates = computed(() => certificateList.value ?? [])
 
 async function save() {
   saving.value = true

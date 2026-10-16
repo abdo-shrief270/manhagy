@@ -61,10 +61,16 @@ cd /opt/manhagy/infra/production && ./deploy.sh
 
 من غير `VERIFY_WHATSAPP` التأكيد مقفول، والطلاب بيتفرّجوا من غيره.
 
-## 5. النسخ الاحتياطي
+## 5. سوق منهجي (اختياري)
+- اعمل DNS لـ `courses.manhagy.online` (أو أي اسم تختاره) على نفس السيرفر.
+- في `.env`: `MARKET_DOMAIN=courses.manhagy.online` و `MARKET_URL=https://courses.manhagy.online`، وعدّل `MARKET_COMMISSION_PERCENT` و `MARKET_PAY_WITHIN_DAYS` لو عايز.
+- `./deploy.sh` بيبني خدمة `market` ويطلّع لها شهادة لوحدها (اسم محدد بيكسب على `*.manhagy.online`).
+- الكورسات بتظهر لما المدرس يفتح «سوق منهجي» من التطبيق؛ `market:sync` بيحدّث كل 5 دقايق، وكل ليلة بيعيد البناء كله.
+
+## 6. النسخ الاحتياطي
 - كل يوم في `BACKUP_TIME` في `infra/production/backups/` (الداتابيز + الملفات)، وبيتمسح القديم بعد `BACKUP_KEEP_DAYS`.
 - نسخة برّه السيرفر: `BACKUP_RCLONE_REMOTE` + إعدادات rclone في `.env`.
 - `./backup.sh` = نسخة دلوقتي، `./restore.sh backups/…dump` = ترجيع.
 
-## 6. المتابعة
+## 7. المتابعة
 `./setup-monitoring.sh` بيضيف فحص كل دقيقتين ورسالة تليجرام لو حاجة وقعت (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`).

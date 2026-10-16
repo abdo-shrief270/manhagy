@@ -3,9 +3,9 @@ name: apps
 on:
   push:
     branches: [main]
-    paths: ['apps/web/**', 'apps/learn/**', 'apps/admin/**', '.github/workflows/apps.yml']
+    paths: ['apps/web/**', 'apps/learn/**', 'apps/admin/**', 'apps/market/**', '.github/workflows/apps.yml']
   pull_request:
-    paths: ['apps/web/**', 'apps/learn/**', 'apps/admin/**', '.github/workflows/apps.yml']
+    paths: ['apps/web/**', 'apps/learn/**', 'apps/admin/**', 'apps/market/**', '.github/workflows/apps.yml']
 
 jobs:
   build:
@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: [web, learn, admin]
+        app: [web, learn, admin, market]
     defaults:
       run:
         working-directory: apps/${{ matrix.app }}

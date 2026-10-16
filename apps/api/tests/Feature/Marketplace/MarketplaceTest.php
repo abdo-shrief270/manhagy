@@ -28,9 +28,10 @@ class MarketplaceTest extends TestCase
         return $this->asTeacher()->putJson('/api/v1/marketplace', ['listed' => true, 'headline' => 'مدرس فيزياء تالتة ثانوي', ...$extra])->assertOk()->json('data');
     }
 
-    private function fund(int $amount): void
+    private function fund(int $amount, ?string $learner = null): void
     {
-        $this->asTeacher()->postJson('/api/v1/wallet/adjust', ['learner_id' => $this->learnerId, 'amount' => $amount, 'note' => 'شحن'])->assertSuccessful();
+        $learner ??= $this->learnerId;
+        $this->asTeacher()->postJson('/api/v1/wallet/adjust', ['learner_id' => $learner, 'amount' => $amount, 'note' => 'شحن'])->assertSuccessful();
     }
 
     private function asAdmin(): static
@@ -97,16 +98,23 @@ class MarketplaceTest extends TestCase
         $this->asStudent()->putJson("/api/v1/learner/courses/{$this->courseId}/review", ['rating' => 4, 'comment' => 'شرح حلو جداً'])->assertOk()->assertJsonPath('data.first_name', 'يوسف');
         $this->asStudent()->putJson("/api/v1/learner/courses/{$this->courseId}/review", ['rating' => 5, 'comment' => 'شرح حلو جداً'])->assertOk();
         $this->assertSame(1, DB::table('course_reviews')->count());
+        // A second student's 4 stars: the average keeps its fraction.
+        $other = $this->registerStudent('01012345499', 'منة خالد');
+        $this->fund(30000, DB::table('learners')->where('phone', '+201012345499')->value('id'));
+        $this->asStudent($other)->postJson("/api/v1/learner/courses/{$this->courseId}/buy")->assertCreated();
+        $this->asStudent($other)->putJson("/api/v1/learner/courses/{$this->courseId}/review", ['rating' => 4])->assertOk();
+        $this->assertEquals(4.5, $this->withoutToken()->getJson("/api/v1/public/market/courses/{$this->courseId}")->json('data.rating'));
+        $this->asStudent($other)->putJson("/api/v1/learner/courses/{$this->courseId}/review", ['rating' => 5])->assertOk();
 
         $card = $this->withoutToken()->getJson("/api/v1/public/market/courses/{$this->courseId}")->json('data');
         $this->assertEquals(5, $card['rating']);
-        $this->assertSame(1, $card['distribution'][5]);
+        $this->assertSame(2, $card['distribution'][5]);
         $this->assertSame('شرح حلو جداً', $card['reviews_list'][0]['comment']);
 
         // The admins hide an abusive one: it leaves the rating.
         $review = $this->asAdmin()->getJson('/api/v1/admin/market/reviews')->assertOk()->json('data.0');
         $this->patchJson("/api/v1/admin/market/reviews/{$review['id']}", ['hidden' => true])->assertOk();
-        $this->assertNull($this->withoutToken()->getJson("/api/v1/public/market/courses/{$this->courseId}")->json('data.rating'));
+        $this->assertSame(1, $this->withoutToken()->getJson("/api/v1/public/market/courses/{$this->courseId}")->json('data.reviews'));
         $this->assertDatabaseHas('platform_admin_actions', ['action' => 'market_review_hidden']);
     }
 

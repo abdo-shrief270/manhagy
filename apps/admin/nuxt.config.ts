@@ -28,7 +28,7 @@ export default defineNuxtConfig({
   icon: {
     clientBundle: {
       scan: true,
-      icons: ['lucide:layout-dashboard', 'lucide:banknote', 'lucide:store', 'lucide:sun', 'lucide:moon', 'lucide:log-out', 'lucide:shield', 'lucide:history', 'lucide:message-square-heart', 'lucide:bug', 'lucide:ticket-percent', 'lucide:server', 'lucide:blocks', 'lucide:search', 'lucide:pencil', 'lucide:rotate-ccw', 'lucide:circle-check', 'lucide:gift', 'lucide:clock', 'lucide:eye-off', 'lucide:handshake', 'lucide:check', 'lucide:x', 'lucide:crown', 'lucide:menu', 'lucide:tags', 'lucide:smartphone', 'lucide:plus', 'lucide:trash-2', 'lucide:flag', 'lucide:eye', 'lucide:external-link', 'lucide:user-plus', 'lucide:message-circle', 'lucide:copy'],
+      icons: ['lucide:arrow-left', 'lucide:arrow-right', 'lucide:banknote', 'lucide:blocks', 'lucide:bug', 'lucide:check', 'lucide:chevron-left', 'lucide:circle-check', 'lucide:circle-x', 'lucide:clock', 'lucide:copy', 'lucide:crown', 'lucide:eye-off', 'lucide:gift', 'lucide:handshake', 'lucide:history', 'lucide:image', 'lucide:layout-dashboard', 'lucide:log-out', 'lucide:menu', 'lucide:message-circle', 'lucide:message-square-heart', 'lucide:moon', 'lucide:network', 'lucide:pencil', 'lucide:plus', 'lucide:rotate-ccw', 'lucide:search', 'lucide:server', 'lucide:shield', 'lucide:shopping-bag', 'lucide:store', 'lucide:sun', 'lucide:tags', 'lucide:ticket-percent', 'lucide:trash-2', 'lucide:user-plus', 'lucide:x'],
     },
   },
 

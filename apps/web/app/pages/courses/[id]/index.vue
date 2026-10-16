@@ -71,6 +71,7 @@
           <UButton v-if="canManage" color="neutral" variant="outline" icon="i-lucide-folder-plus" label="فصل جديد" @click="addChapter" />
         </div>
 
+        <div class="space-y-4">
         <UCard v-if="details" :ui="{ body: 'space-y-4' }">
           <template #header>
             <h2 class="font-bold">
@@ -101,6 +102,8 @@
             <UButton v-if="store.can('courses.view')" size="sm" color="neutral" variant="outline" icon="i-lucide-users-round" label="المشتركين" :to="`/courses/${course.id}/students`" />
           </div>
         </UCard>
+        <CertificateSettingsCard v-if="store.can('certificates.manage')" :course-id="course.id" />
+        </div>
       </div>
     </template>
 

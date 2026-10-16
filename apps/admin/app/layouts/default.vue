@@ -60,6 +60,7 @@ const groups: NavGroup[] = [
       { to: '/signup', label: 'التسجيل', icon: 'i-lucide-user-plus' },
       { to: '/modules', label: 'الأقسام والمميزات', icon: 'i-lucide-blocks' },
       { to: '/curriculum', label: 'شجرة المناهج', icon: 'i-lucide-network', badge: 'curriculum' },
+      { to: '/market', label: 'سوق منهجي', icon: 'i-lucide-shopping-bag', badge: 'market' },
     ],
   },
   {

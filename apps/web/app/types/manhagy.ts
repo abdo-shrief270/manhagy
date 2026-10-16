@@ -356,3 +356,85 @@ export interface CenterTeacher {
   active: boolean
   statement?: { from: string, to: string, attendances: number, collected: number, due: number, paid: number, remaining: number }
 }
+
+// «سوق منهجي»
+export type MarketBlocker = 'not_listed' | 'subscription' | 'unpaid' | null
+
+export interface MarketCommissionSummary {
+  rate_percent: number
+  due: number
+  due_count: number
+  oldest_due_at: string | null
+  pay_by: string | null
+  overdue: boolean
+  settled: number
+  sales: number
+  pay_within_days: number
+  instapay: { address?: string, name?: string, phone?: string } | null
+}
+
+export interface MarketState {
+  listed: boolean
+  headline: string | null
+  about: string | null
+  hidden_courses: string[]
+  blocker: MarketBlocker
+  market_url: string | null
+  courses: { id: string, title: string, price: number, hidden: boolean, in_market: boolean, students: number, rating: number | null, reviews: number, url: string | null }[]
+  commission: MarketCommissionSummary
+}
+
+export interface MarketCommission {
+  id: string
+  course_id: string
+  course_title: string
+  amount: number
+  rate_percent: number
+  commission: number
+  state: 'due' | 'settled' | 'void'
+  settled_at: string | null
+  settled_reference: string | null
+  voided_at: string | null
+  void_reason: string | null
+  created_at: string
+}
+
+export interface CourseReview {
+  id: string
+  course_id: string
+  first_name: string
+  rating: number
+  comment: string | null
+  hidden: boolean
+  at: string
+}
+
+// Certificates
+export interface CertificateSettings {
+  course_id: string
+  enabled: boolean
+  min_exam_percent: number | null
+  title: string
+  signer_name: string | null
+  signer_title: string | null
+  issued: number
+}
+
+export interface IssuedCertificate {
+  id: string
+  code: string
+  display_code: string
+  title: string
+  learner_id: string
+  learner_name: string
+  course_id: string
+  course_title: string
+  teacher_name: string
+  minutes: number
+  exam_percent: number | null
+  issued_at: string
+  revoked: boolean
+  revoked_at: string | null
+  revoke_reason: string | null
+  url: string
+}
