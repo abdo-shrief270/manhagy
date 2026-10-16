@@ -63,24 +63,5 @@ return new class extends Migration
             $table->unique(['course_id', 'learner_id']);
         });
 
-        // The platform's commission on a sale that came from the market (append-only but for settling).
-        Schema::create('market_commissions', function (Blueprint $table): void {
-            $table->uuid('id')->primary();
-            $table->bigInteger('seq')->generatedAs()->always();
-            $table->foreignUuid('tenant_id')->constrained('tenants')->cascadeOnDelete();
-            $table->uuid('course_id');
-            $table->string('course_title', 150);
-            $table->uuid('learner_id');
-            $table->uuid('reference')->unique(); // the wallet purchase
-            $table->unsignedInteger('amount'); // what the student paid
-            $table->unsignedSmallInteger('rate_percent');
-            $table->unsignedInteger('commission');
-            $table->timestamp('settled_at')->nullable();
-            $table->string('settled_reference', 80)->nullable();
-            $table->timestamp('voided_at')->nullable();
-            $table->string('void_reason', 200)->nullable();
-            $table->timestamp('created_at');
-            $table->index(['tenant_id', 'settled_at']);
-        });
     }
 };

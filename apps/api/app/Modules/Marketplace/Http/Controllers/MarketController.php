@@ -6,9 +6,7 @@ namespace App\Modules\Marketplace\Http\Controllers;
 
 use App\Modules\Courses\Contracts\CourseCatalog;
 use App\Modules\Marketplace\Models\CourseReview;
-use App\Modules\Marketplace\Models\MarketCommission;
 use App\Modules\Marketplace\Models\MarketSetting;
-use App\Modules\Marketplace\Support\Commissions;
 use App\Modules\Marketplace\Support\Indexer;
 use App\Support\Audit\Auditor;
 use App\Support\Tenancy\CurrentTenant;
@@ -17,12 +15,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
-/** The account's side of the market: showing up there, which courses, the reviews, the commissions. */
+/** The account's side of the market: showing up there, which courses, the reviews. */
 final class MarketController
 {
     public function __construct(
         private readonly Indexer $indexer,
-        private readonly Commissions $commissions,
         private readonly CurrentTenant $tenant,
     ) {}
 
@@ -67,16 +64,6 @@ final class MarketController
         ]);
     }
 
-    public function commissions(): JsonResponse
-    {
-        $rows = MarketCommission::query()->orderByDesc('seq')->paginate(50);
-
-        return response()->json([
-            'data' => collect($rows->items())->map(fn (MarketCommission $c) => $c->toSummary())->all(),
-            'meta' => ['total' => $rows->total(), 'last_page' => $rows->lastPage(), 'summary' => $this->commissions->summary($this->tenant->idOrFail())],
-        ]);
-    }
-
     /** @return array<string, mixed> */
     private function state(CourseCatalog $courses): array
     {
@@ -90,7 +77,7 @@ final class MarketController
             'headline' => $settings->headline,
             'about' => $settings->about,
             'hidden_courses' => $settings->hidden_courses,
-            // null = in the market; not_listed / subscription / unpaid = why not
+            // null = in the market; not_listed / subscription = why not
             'blocker' => $this->indexer->blocker($tenantId, $settings),
             'market_url' => $market === '' ? null : $market,
             'courses' => array_map(fn (array $c) => [
@@ -102,7 +89,6 @@ final class MarketController
                 'reviews' => (int) ($listed[$c['id']]->reviews ?? 0),
                 'url' => $market === '' || ! isset($listed[$c['id']]) ? null : "{$market}/courses/{$c['id']}",
             ], $courses->published()),
-            'commission' => $this->commissions->summary($tenantId),
         ];
     }
 }

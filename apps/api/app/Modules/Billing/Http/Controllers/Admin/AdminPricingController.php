@@ -16,7 +16,6 @@ use App\Modules\Curriculum\Contracts\CurriculumAdmin;
 use App\Modules\Feedback\Contracts\FeedbackInbox;
 use App\Modules\Identity\Contracts\PlatformShops;
 use App\Modules\Identity\Contracts\SignupGate;
-use App\Modules\Marketplace\Contracts\MarketAdmin;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -181,7 +180,7 @@ final class AdminPricingController
     }
 
     /** The numbers on the admin menu. */
-    public function badges(FeedbackInbox $inbox, CurriculumAdmin $curriculum, MarketAdmin $market): JsonResponse
+    public function badges(FeedbackInbox $inbox, CurriculumAdmin $curriculum): JsonResponse
     {
         $counts = $inbox->counts();
 
@@ -192,7 +191,6 @@ final class AdminPricingController
             'errors' => $counts['open_errors'],
             'server' => DB::table('server_errors')->whereNull('resolved_at')->count(),
             'curriculum' => $curriculum->toReview(),
-            'market' => count(array_filter($market->owing(), fn (array $r) => $r['overdue'])),
         ]]);
     }
 }

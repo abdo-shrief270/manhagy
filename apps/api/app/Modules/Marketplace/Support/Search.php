@@ -118,8 +118,8 @@ final class Search
             'reviews' => (int) $r->reviews,
             'published_at' => $r->published_at === null ? null : now()->parse($r->published_at)->toIso8601String(),
             'teacher' => ['name' => $r->teacher, 'slug' => $r->site_slug, 'headline' => $r->headline, 'color' => $r->color],
-            // The student opens it on the teacher's own platform; `via=market` marks the sale for the commission.
-            'url' => "{$r->site_url}/courses/{$r->course_id}?via=market",
+            // The student opens it on the teacher's own platform.
+            'url' => "{$r->site_url}/courses/{$r->course_id}",
         ];
     }
 

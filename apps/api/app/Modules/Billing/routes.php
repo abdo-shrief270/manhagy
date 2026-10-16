@@ -90,10 +90,6 @@ Route::prefix('admin')->middleware(AdminGate::class)->group(function (): void {
         });
 
         Route::controller(AdminMarketController::class)->prefix('market')->group(function (): void {
-            Route::get('commissions', 'owing');
-            Route::get('commissions/{tenant}', 'commissions');
-            Route::post('commissions/{tenant}/settle', 'settle');
-            Route::post('commissions/{commission}/void', 'void')->whereUuid('commission');
             Route::get('reviews', 'reviews');
             Route::patch('reviews/{review}', 'updateReview')->whereUuid('review');
         });

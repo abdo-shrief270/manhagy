@@ -2,7 +2,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 // «سوق منهجي»: the courses every teacher and trainer chose to show, in one place to search, compare
 // and read reviews. Server-rendered for search engines and link previews, cached a short while.
-// A course opens on its teacher's own platform ({slug}.manhagy.online) with ?via=market.
+// A course opens on its teacher's own platform ({slug}.manhagy.online).
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-01',
   devtools: { enabled: false },

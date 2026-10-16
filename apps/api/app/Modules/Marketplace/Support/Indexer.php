@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Keeps `market_courses` (the market's search table) in step with what each listed account has
  * published: rebuilt per account when its courses change (`market:sync`), when its settings are
- * saved, and every night for all (`market:reindex`: students, standing, unpaid commissions).
+ * saved, and every night for all (`market:sync --all`: students, subscription standing).
  */
 final class Indexer
 {
@@ -30,7 +30,6 @@ final class Indexer
         private readonly SiteDirectory $sites,
         private readonly Enrollments $enrollments,
         private readonly SubscriptionStanding $standing,
-        private readonly Commissions $commissions,
     ) {}
 
     /** Why the account isn't in the market now (null = it is). */
@@ -39,7 +38,6 @@ final class Indexer
         return match (true) {
             $settings === null || ! $settings->listed => 'not_listed',
             ! $this->standing->listed($tenantId) => 'subscription',
-            $this->commissions->overdue($tenantId) => 'unpaid',
             default => null,
         };
     }

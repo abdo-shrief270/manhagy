@@ -9,15 +9,12 @@ use App\Modules\Courses\Contracts\CourseCatalog;
 use App\Modules\Learners\Contracts\LearnerDirectory;
 use App\Modules\Notifications\Contracts\Notifications;
 use App\Modules\Wallet\Contracts\LearnerWallets;
-use App\Modules\Wallet\Events\CoursePurchased;
 use App\Modules\Wallet\Models\WalletSettings;
 use App\Modules\Wallet\Models\WalletTopup;
 use App\Modules\Wallet\Models\WalletTransaction;
 use App\Modules\Wallet\Support\Money;
-use App\Support\Events\EventRecorder;
 use App\Support\Exceptions\DomainRuleException;
 use App\Support\Media\WebpImage;
-use App\Support\Tenancy\CurrentTenant;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -83,22 +80,19 @@ final class LearnerWalletController
     }
 
     /** Buying a course from the balance (a free course just opens). */
-    public function buy(Request $request, string $course, CourseCatalog $courses, Enrollments $enrollments, EventRecorder $events, CurrentTenant $tenant): JsonResponse
+    public function buy(string $course, CourseCatalog $courses, Enrollments $enrollments): JsonResponse
     {
-        // Where the student found the course: «market» = from the marketplace (the platform's commission).
-        $via = $request->validate(['via' => ['nullable', Rule::in(['market'])]])['via'] ?? null;
         $learner = $this->learner();
         $found = $courses->course($course) ?? abort(404);
         if ($found['access_days'] === null && $enrollments->hasAccess($learner['learner_id'], $found['id'])) {
             throw new DomainRuleException('انت مشترك في الكورس ده فعلاً.', 'already_enrolled');
         }
 
-        $result = DB::transaction(function () use ($learner, $found, $enrollments, $events, $tenant, $via): array {
+        $result = DB::transaction(function () use ($learner, $found, $enrollments): array {
             if ($found['price'] === 0) {
                 return ['enrollment' => $enrollments->grant($learner['learner_id'], $found['id'], 'free')];
             }
             $tx = $this->wallets->post($learner['learner_id'], 'purchase', -$found['price'], $found['id'], "شراء «{$found['title']}»");
-            $events->record(new CoursePurchased((string) $tenant->id(), $learner['learner_id'], $found['id'], $found['price'], $tx['id'], $via));
 
             return ['enrollment' => $enrollments->grant($learner['learner_id'], $found['id'], 'wallet', reference: $tx['id']), 'balance' => $tx['balance_after']];
         });

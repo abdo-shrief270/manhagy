@@ -3,15 +3,15 @@
 namespace Tests\Feature\Marketplace;
 
 use App\Modules\Billing\Models\PlatformAdmin;
-use App\Modules\Marketplace\Models\MarketCommission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Laravel\Sanctum\Sanctum;
 use Tests\Concerns\CreatesShops;
 use Tests\Concerns\RunsAPlatform;
 use Tests\TestCase;
 
-/** «سوق منهجي»: opting in, search, reviews by enrolled students, the commission on market sales. */
+/** «سوق منهجي»: opting in, search, reviews by enrolled students. */
 class MarketplaceTest extends TestCase
 {
     use CreatesShops, RefreshDatabase, RunsAPlatform;
@@ -19,7 +19,7 @@ class MarketplaceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        config(['services.market.url' => 'https://courses.manhagy.test', 'services.market.commission_percent' => 15]);
+        config(['services.market.url' => 'https://courses.manhagy.test']);
         $this->setUpPlatform();
     }
 
@@ -63,7 +63,7 @@ class MarketplaceTest extends TestCase
         $card = $found['data'][0];
         $this->assertSame('school', $card['kind']);
         $this->assertSame('mr-mohamed', $card['teacher']['slug']);
-        $this->assertStringEndsWith("/courses/{$this->courseId}?via=market", $card['url']);
+        $this->assertStringEndsWith("/courses/{$this->courseId}", $card['url']);
         $this->assertSame(0, $this->getJson('/api/v1/public/market/courses?q='.urlencode('كيمياء'))->json('meta.total'));
         $this->assertSame(0, $this->getJson('/api/v1/public/market/courses?kind=skills')->json('meta.total'));
 
@@ -118,42 +118,13 @@ class MarketplaceTest extends TestCase
         $this->assertDatabaseHas('platform_admin_actions', ['action' => 'market_review_hidden']);
     }
 
-    public function test_a_sale_from_the_market_owes_a_commission_and_an_unpaid_one_pauses_the_listing(): void
+    public function test_a_course_bought_from_the_market_owes_the_platform_nothing(): void
     {
         $this->list();
-        $this->fund(60000);
-        // From the teacher's own link: no commission.
-        $this->asStudent()->postJson("/api/v1/learner/courses/{$this->courseId}/buy")->assertCreated();
-        $this->assertSame(0, MarketCommission::withoutTenancy()->count());
-        // From the market: 15% of 300 ج.
-        $this->asStudent()->postJson("/api/v1/learner/courses/{$this->courseId}/buy", ['via' => 'market'])->assertCreated();
-        $row = MarketCommission::withoutTenancy()->sole();
-        $this->assertSame(4500, $row->commission);
-
-        $summary = $this->asTeacher()->getJson('/api/v1/marketplace/commissions')->assertOk()->json('meta.summary');
-        $this->assertSame(4500, $summary['due']);
-        $this->assertFalse($summary['overdue']);
-
-        // Unpaid past the deadline: out of the market overnight, back once the admins settle it.
-        config(['services.market.pay_within_days' => 5]);
-        $this->travel(6)->days();
-        $this->artisan('market:sync --all')->assertSuccessful();
-        $this->assertSame(0, DB::table('market_courses')->count());
-        $this->assertSame('unpaid', $this->asTeacher()->getJson('/api/v1/marketplace')->json('data.blocker'));
-
-        $owing = $this->asAdmin()->getJson('/api/v1/admin/market/commissions')->assertOk()->json('data');
-        $this->assertTrue($owing[0]['overdue']);
-        $this->assertSame(1, $this->getJson('/api/v1/admin/badges')->json('data.market'));
-        $this->postJson("/api/v1/admin/market/commissions/{$owing[0]['tenant_id']}/settle", ['reference' => 'IP-7781'])->assertOk()->assertJsonPath('data.amount', 4500);
-        $this->assertSame(1, DB::table('market_courses')->count());
-        $this->assertDatabaseHas('platform_admin_actions', ['action' => 'market_commissions_settled']);
-    }
-
-    public function test_a_market_link_to_a_course_not_in_the_market_owes_nothing(): void
-    {
         $this->fund(30000);
-        $this->asStudent()->postJson("/api/v1/learner/courses/{$this->courseId}/buy", ['via' => 'market'])->assertCreated();
-        $this->assertSame(0, MarketCommission::withoutTenancy()->count());
+        $this->asStudent()->postJson("/api/v1/learner/courses/{$this->courseId}/buy")->assertCreated();
+        $this->assertFalse(Schema::hasTable('market_commissions'));
+        $this->assertArrayNotHasKey('commission', $this->asTeacher()->getJson('/api/v1/marketplace')->json('data'));
     }
 
     public function test_trainers_sign_up_and_teach_skills(): void

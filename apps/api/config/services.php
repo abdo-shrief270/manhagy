@@ -58,14 +58,9 @@ return [
         'host' => env('SITES_HOST', 'manhagy.online'),
     ],
 
-    // «سوق منهجي»: the marketplace site (MARKET_URL, e.g. https://courses.manhagy.online; empty = not open
-    // yet), the platform's commission on a course bought by a student who came from it, and how long
-    // a commission may stay unpaid before the account's courses leave the market.
+    // «سوق منهجي»: the marketplace site (MARKET_URL, e.g. https://courses.manhagy.online; empty = not open yet).
     'market' => [
         'url' => rtrim((string) env('MARKET_URL', ''), '/'),
-        'commission_percent' => (int) env('MARKET_COMMISSION_PERCENT', 15),
-        'pay_within_days' => (int) env('MARKET_PAY_WITHIN_DAYS', 30),
-        'attribution_days' => 30,
     ],
 
     // The video provider behind Media\Contracts\VideoHost. `fake` until one is chosen (docs/TECH_PLAN.md §14).

@@ -63,7 +63,7 @@ cd /opt/manhagy/infra/production && ./deploy.sh
 
 ## 5. سوق منهجي (اختياري)
 - اعمل DNS لـ `courses.manhagy.online` (أو أي اسم تختاره) على نفس السيرفر.
-- في `.env`: `MARKET_DOMAIN=courses.manhagy.online` و `MARKET_URL=https://courses.manhagy.online`، وعدّل `MARKET_COMMISSION_PERCENT` و `MARKET_PAY_WITHIN_DAYS` لو عايز.
+- في `.env`: `MARKET_DOMAIN=courses.manhagy.online` و `MARKET_URL=https://courses.manhagy.online`.
 - `./deploy.sh` بيبني خدمة `market` ويطلّع لها شهادة لوحدها (اسم محدد بيكسب على `*.manhagy.online`).
 - الكورسات بتظهر لما المدرس يفتح «سوق منهجي» من التطبيق؛ `market:sync` بيحدّث كل 5 دقايق، وكل ليلة بيعيد البناء كله.
 

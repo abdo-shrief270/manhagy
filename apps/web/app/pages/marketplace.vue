@@ -1,17 +1,16 @@
 <template>
   <div class="max-w-5xl space-y-6">
-    <PageHeader title="سوق منهجي" description="مكان واحد الطلاب بيدوّروا فيه على كورس من كل المدرسين والمدربين. البيع اللي جاي من السوق عليه عمولة، واللي جاي من لينكك انت ببلاش.">
+    <PageHeader title="سوق منهجي" description="مكان واحد الطلاب بيدوّروا فيه على كورس من كل المدرسين والمدربين، ومنه بيدخلوا منصتك ويشتركوا.">
       <UButton v-if="state?.market_url" color="neutral" variant="outline" icon="i-lucide-external-link" label="افتح السوق" :to="state.market_url" target="_blank" />
     </PageHeader>
 
     <USkeleton v-if="!state || !form" class="h-96" />
     <template v-else>
-      <UAlert v-if="state.blocker === 'unpaid'" color="error" variant="subtle" icon="i-lucide-circle-alert" title="كورساتك اتشالت من السوق مؤقتاً" :description="`فيه عمولة ${formatMoney(state.commission.due)} عدّى عليها ${state.commission.pay_within_days} يوم. ادفعها وكورساتك ترجع على طول.`" />
-      <UAlert v-else-if="state.blocker === 'subscription'" color="warning" variant="subtle" icon="i-lucide-credit-card" title="اشتراكك محتاج تجديد" description="السوق بيعرض الحسابات اللي اشتراكها شغال بس." :actions="[{ label: 'جدّد', to: '/settings/billing' }]" />
+      <UAlert v-if="state.blocker === 'subscription'" color="warning" variant="subtle" icon="i-lucide-credit-card" title="اشتراكك محتاج تجديد" description="السوق بيعرض الحسابات اللي اشتراكها شغال بس." :actions="[{ label: 'جدّد', to: '/settings/billing' }]" />
       <UAlert v-else-if="state.blocker === null" color="success" variant="subtle" icon="i-lucide-badge-check" :title="`${inMarket} كورس ظاهر في السوق دلوقتي`" />
 
-      <div class="grid gap-6 lg:grid-cols-3">
-        <form class="space-y-4 lg:col-span-2" @submit.prevent="save">
+      <div class="max-w-3xl">
+        <form class="space-y-4" @submit.prevent="save">
           <UCard :ui="{ body: 'space-y-4' }">
             <USwitch v-model="form.listed" size="lg" label="اظهر في سوق منهجي" description="كورساتك المنشورة تظهر للطلاب في البحث، بتقييماتها وعدد المشتركين. تقدر تخبّي أي كورس تحت." />
             <UFormField label="جملة تحت اسمك" hint="اختياري" description="بتظهر على كل كورس من كورساتك في السوق.">
@@ -53,51 +52,12 @@
           </UCard>
           <UButton type="submit" size="lg" :loading="saving" label="حفظ" />
         </form>
-
-        <div class="space-y-4">
-          <UCard :ui="{ body: 'space-y-3' }">
-            <template #header>
-              <h2 class="font-bold">
-                العمولة
-              </h2>
-            </template>
-            <p class="text-sm text-(--ui-text-muted)">
-              <span class="num font-bold text-(--ui-text)">{{ state.commission.rate_percent }}%</span> من الكورس اللي طالب اشتراه وهو جاي من السوق. اللي بييجي من لينك منصتك أو بكود مالوش عمولة.
-            </p>
-            <div class="rounded-(--ui-radius) bg-(--ui-bg-elevated) p-3">
-              <p class="text-xs text-(--ui-text-muted)">
-                عليك دلوقتي
-              </p>
-              <p class="num text-2xl font-extrabold" :class="state.commission.overdue ? 'text-error' : ''">
-                {{ formatMoney(state.commission.due) }}
-              </p>
-              <p v-if="state.commission.pay_by" class="text-xs text-(--ui-text-muted)">
-                ادفع قبل {{ formatDate(state.commission.pay_by) }}
-              </p>
-            </div>
-            <div v-if="state.commission.due && state.commission.instapay" class="space-y-1 text-sm">
-              <p class="font-bold">
-                حوّل InstaPay على:
-              </p>
-              <p v-if="state.commission.instapay.address" class="num" dir="ltr">
-                {{ state.commission.instapay.address }}
-              </p>
-              <p v-if="state.commission.instapay.name">
-                {{ state.commission.instapay.name }}
-              </p>
-              <p class="text-xs text-(--ui-text-muted)">
-                وابعت رقم التحويل لخدمة العملاء من «ابعت ملاحظة».
-              </p>
-            </div>
-            <p class="text-xs text-(--ui-text-muted)">
-              بعت عن طريق السوق: <span class="num">{{ formatMoney(state.commission.sales) }}</span> · دفعت: <span class="num">{{ formatMoney(state.commission.settled) }}</span>
-            </p>
-          </UCard>
-        </div>
       </div>
 
-      <UTabs v-model="tab" :items="[{ label: 'التقييمات', value: 'reviews' }, { label: 'العمولات', value: 'commissions' }]" class="w-full" />
-      <div v-if="tab === 'reviews'" class="space-y-2">
+      <h2 class="text-lg font-bold">
+        التقييمات
+      </h2>
+      <div class="space-y-2">
         <p v-if="!reviews.length" class="app-card p-6 text-center text-sm text-(--ui-text-muted)">
           لسه مفيش تقييمات. الطلاب المشتركين بيقيّموا من صفحة الكورس في منصتك.
         </p>
@@ -113,57 +73,12 @@
           </p>
         </div>
       </div>
-      <div v-else class="app-card overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead class="text-(--ui-text-muted)">
-            <tr class="text-start">
-              <th class="p-3 text-start">
-                التاريخ
-              </th>
-              <th class="p-3 text-start">
-                الكورس
-              </th>
-              <th class="p-3 text-start">
-                البيع
-              </th>
-              <th class="p-3 text-start">
-                العمولة
-              </th>
-              <th class="p-3 text-start" />
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-(--ui-border)">
-            <tr v-if="!commissions.length">
-              <td colspan="5" class="p-6 text-center text-(--ui-text-muted)">
-                لسه مفيش بيع من السوق.
-              </td>
-            </tr>
-            <tr v-for="c in commissions" :key="c.id">
-              <td class="num p-3">
-                {{ formatDate(c.created_at) }}
-              </td>
-              <td class="p-3">
-                {{ c.course_title }}
-              </td>
-              <td class="num p-3">
-                {{ formatMoney(c.amount) }}
-              </td>
-              <td class="num p-3 font-bold">
-                {{ formatMoney(c.commission) }}
-              </td>
-              <td class="p-3">
-                <UBadge :color="c.state === 'due' ? 'warning' : c.state === 'settled' ? 'success' : 'neutral'" variant="subtle" :label="{ due: 'عليك', settled: 'اتدفعت', void: 'اتلغت' }[c.state]" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { CourseReview, MarketCommission, MarketState } from '~/types/manhagy'
+import type { CourseReview, MarketState } from '~/types/manhagy'
 
 definePageMeta({ permission: 'marketplace.manage' })
 
@@ -172,9 +87,7 @@ const toast = useToast()
 const state = ref<MarketState | null>(null)
 const form = ref<Pick<MarketState, 'listed' | 'headline' | 'about' | 'hidden_courses'> | null>(null)
 const saving = ref(false)
-const tab = ref<'reviews' | 'commissions'>('reviews')
 const reviews = ref<CourseReview[]>([])
-const commissions = ref<MarketCommission[]>([])
 
 const inMarket = computed(() => state.value?.courses.filter(c => c.in_market).length ?? 0)
 
@@ -195,7 +108,6 @@ function courseTitle(id: string) {
 onMounted(async () => {
   fill((await api<{ data: MarketState }>('/marketplace')).data)
   reviews.value = (await api<{ data: CourseReview[] }>('/marketplace/reviews')).data
-  commissions.value = (await api<{ data: MarketCommission[] }>('/marketplace/commissions')).data
 })
 
 async function save() {

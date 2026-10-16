@@ -24,5 +24,4 @@ Route::middleware(['auth:sanctum', 'tenant', 'can:marketplace.manage'])->prefix(
     Route::get('/', 'show');
     Route::put('/', 'update');
     Route::get('reviews', 'reviews');
-    Route::get('commissions', 'commissions');
 });

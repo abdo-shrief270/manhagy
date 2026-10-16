@@ -358,20 +358,8 @@ export interface CenterTeacher {
 }
 
 // «سوق منهجي»
-export type MarketBlocker = 'not_listed' | 'subscription' | 'unpaid' | null
+export type MarketBlocker = 'not_listed' | 'subscription' | null
 
-export interface MarketCommissionSummary {
-  rate_percent: number
-  due: number
-  due_count: number
-  oldest_due_at: string | null
-  pay_by: string | null
-  overdue: boolean
-  settled: number
-  sales: number
-  pay_within_days: number
-  instapay: { address?: string, name?: string, phone?: string } | null
-}
 
 export interface MarketState {
   listed: boolean
@@ -381,23 +369,8 @@ export interface MarketState {
   blocker: MarketBlocker
   market_url: string | null
   courses: { id: string, title: string, price: number, hidden: boolean, in_market: boolean, students: number, rating: number | null, reviews: number, url: string | null }[]
-  commission: MarketCommissionSummary
 }
 
-export interface MarketCommission {
-  id: string
-  course_id: string
-  course_title: string
-  amount: number
-  rate_percent: number
-  commission: number
-  state: 'due' | 'settled' | 'void'
-  settled_at: string | null
-  settled_reference: string | null
-  voided_at: string | null
-  void_reason: string | null
-  created_at: string
-}
 
 export interface CourseReview {
   id: string

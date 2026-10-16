@@ -6,51 +6,11 @@ namespace App\Modules\Marketplace\Support;
 
 use App\Modules\Marketplace\Contracts\MarketAdmin;
 use App\Modules\Marketplace\Models\CourseReview;
-use App\Modules\Marketplace\Models\MarketCommission;
 use Illuminate\Support\Facades\DB;
 
 final class Admin implements MarketAdmin
 {
-    public function __construct(private readonly Commissions $commissions, private readonly Indexer $indexer) {}
-
-    public function owing(): array
-    {
-        $days = (int) config('services.market.pay_within_days', 30);
-
-        return MarketCommission::withoutTenancy()->due()
-            ->selectRaw('tenant_id, sum(commission) as due, count(*) as due_count, min(created_at) as oldest')
-            ->groupBy('tenant_id')->orderBy('oldest')->get()
-            ->map(fn ($r) => [
-                'tenant_id' => $r->tenant_id, 'due' => (int) $r->due, 'due_count' => (int) $r->due_count,
-                'oldest_due_at' => now()->parse($r->oldest)->toIso8601String(),
-                'overdue' => now()->parse($r->oldest)->lt(now()->subDays($days)),
-            ])->all();
-    }
-
-    public function commissions(string $tenantId): array
-    {
-        return [
-            'summary' => $this->commissions->summary($tenantId),
-            'rows' => MarketCommission::withoutTenancy()->where('tenant_id', $tenantId)->orderByDesc('seq')->limit(200)->get()
-                ->map(fn (MarketCommission $c) => $c->toSummary())->all(),
-        ];
-    }
-
-    public function settle(string $tenantId, string $reference): array
-    {
-        $result = $this->commissions->settle($tenantId, $reference);
-        $this->indexer->syncTenant($tenantId); // back in the market if it was out for being unpaid
-
-        return $result;
-    }
-
-    public function void(string $commissionId, string $reason): array
-    {
-        $row = $this->commissions->void($commissionId, $reason);
-        $this->indexer->syncTenant($row->tenant_id);
-
-        return [...$row->toSummary(), 'tenant_id' => $row->tenant_id];
-    }
+    public function __construct(private readonly Indexer $indexer) {}
 
     public function reviews(?bool $hidden, ?int $maxRating, int $page): array
     {

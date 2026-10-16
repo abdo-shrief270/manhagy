@@ -9,9 +9,9 @@ return new ModuleManifest(
     key: 'marketplace',
     name: 'سوق منهجي',
     tier: ModuleTier::Core,
-    description: 'كورساتك في السوق المركزي: الطلاب يدوّروا ويقارنوا ويقيّموا، والبيع اللي جاي من السوق عليه عمولة بس.',
+    description: 'كورساتك في السوق المركزي: الطلاب يدوّروا ويقارنوا ويقيّموا، ويشتركوا من منصتك.',
     permissions: [
-        'marketplace.manage' => 'الظهور في السوق والتقييمات والعمولات',
+        'marketplace.manage' => 'الظهور في السوق والتقييمات',
     ],
     menu: [
         new MenuItem('/marketplace', 'سوق منهجي', 'i-lucide-store', 'marketplace.manage', group: 'sales'),
