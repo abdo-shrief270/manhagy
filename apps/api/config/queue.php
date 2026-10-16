@@ -73,6 +73,16 @@ return [
             'after_commit' => false,
         ],
 
+        // Encoding videos (Media\Jobs\TranscodeVideo): hours, so a job isn't handed out again meanwhile.
+        'video' => [
+            'driver' => 'redis',
+            'connection' => env('REDIS_QUEUE_CONNECTION', 'default'),
+            'queue' => 'video',
+            'retry_after' => 5 * 3600,
+            'block_for' => null,
+            'after_commit' => true,
+        ],
+
         'deferred' => [
             'driver' => 'deferred',
         ],

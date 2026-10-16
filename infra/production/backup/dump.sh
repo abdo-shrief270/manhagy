@@ -4,7 +4,8 @@
 #   /backups/manhagy-YYYYmmdd-HHMMSS-files.tar.gz    the app's stored files (used-device photos,
 #                                                      payment proofs, feedback screenshots…)
 # then drop local backups older than BACKUP_KEEP_DAYS, and copy both off the server when
-# BACKUP_RCLONE_REMOTE is set. Runs inside the backup container (see Dockerfile.backup); PG*
+# BACKUP_RCLONE_REMOTE is set. Videos (private/videos: hundreds of GB) stay out of the daily archive;
+# with a remote they are mirrored to <remote>/videos incrementally (BACKUP_VIDEOS=0 skips it). Runs inside the backup container (see Dockerfile.backup); PG*
 # variables come from compose, the files are the api's storage volume mounted read-only.
 set -eu
 
@@ -14,6 +15,7 @@ with_files="${BACKUP_FILES:-1}"
 keep_days="${BACKUP_KEEP_DAYS:-14}"
 remote="${BACKUP_RCLONE_REMOTE:-}"
 remote_keep_days="${BACKUP_REMOTE_KEEP_DAYS:-$keep_days}"
+with_videos="${BACKUP_VIDEOS:-1}"
 
 log() { echo "$(date -Iseconds) $*"; }
 
@@ -42,7 +44,7 @@ log "backup ok: $name ($(du -h "$dir/$name" | cut -f1))"
 # back, which lives in .env: keep a copy of .env somewhere safe too.
 if [ "$with_files" != "0" ]; then
   if [ -d "$files_src" ]; then
-    tar -czf "$ftmp" -C "$files_src" .
+    tar -czf "$ftmp" --exclude=./private/videos -C "$files_src" .
     # An archive that doesn't list is not a backup.
     tar -tzf "$ftmp" > /dev/null
     mv "$ftmp" "$dir/$files"
@@ -71,6 +73,15 @@ if [ -n "$remote" ]; then
   if [ "$remote_keep_days" -gt 0 ] 2>/dev/null; then
     rclone delete --min-age "${remote_keep_days}d" --include 'manhagy-*.dump' --include 'manhagy-*-files.tar.gz' "$remote" \
       || log "warning: could not prune old off-site backups"
+  fi
+
+  # Videos: only what changed since last time (new / deleted videos).
+  if [ "$with_videos" != "0" ] && [ -d "$files_src/private/videos" ]; then
+    if rclone sync "$files_src/private/videos" "$remote/videos" --fast-list; then
+      log "videos mirrored: $remote/videos"
+    else
+      log "warning: could not mirror the videos"
+    fi
   fi
 fi
 

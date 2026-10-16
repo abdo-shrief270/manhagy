@@ -68,7 +68,6 @@ final class Player
                 return ['kind' => 'pdf', 'file_url' => $this->media->fileUrl($lesson['media_id'], intdiv(self::LINK_SECONDS, 60)), 'views_left' => $row->viewsLeft($lesson['max_views'])];
             }
 
-            $playback = $this->media->playback($lesson['media_id'], self::LINK_SECONDS);
             $row->save();
             PlaybackSession::query()->where('learner_id', $learner['learner_id'])->whereNull('ended_at')
                 ->update(['ended_at' => now(), 'ended_reason' => 'replaced']);
@@ -77,6 +76,8 @@ final class Player
                 'duration_seconds' => $this->media->find($lesson['media_id'])['duration_seconds'] ?? $lesson['duration_seconds'],
                 'ip' => $ip, 'started_at' => now(), 'last_beat_at' => now(),
             ]);
+            // Bound to this session: the key stops being handed out once it ends (another device, no beats).
+            $playback = $this->media->playback($lesson['media_id'], self::LINK_SECONDS, $session->id);
 
             return [
                 'kind' => 'video',
@@ -135,7 +136,7 @@ final class Player
             $session->save();
 
             return [
-                'playback' => $lesson['media_id'] !== null ? $this->media->playback($lesson['media_id'], self::LINK_SECONDS) : null,
+                'playback' => $lesson['media_id'] !== null ? $this->media->playback($lesson['media_id'], self::LINK_SECONDS, $session->id) : null,
                 'counted' => $justCounted,
                 'views_left' => $row->viewsLeft($lesson['max_views']),
                 'watermark' => $this->watermark($learner, $session),

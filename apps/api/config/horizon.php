@@ -210,6 +210,19 @@ return [
             'timeout' => 60,
             'nice' => 0,
         ],
+        // ffmpeg: one video at a time per process, niced so the API stays quick.
+        'video' => [
+            'connection' => 'video',
+            'queue' => ['video'],
+            'balance' => 'simple',
+            'maxProcesses' => (int) env('VIDEO_WORKERS', 1),
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 512,
+            'tries' => 1,
+            'timeout' => 4 * 3600 + 60,
+            'nice' => 10,
+        ],
     ],
 
     'environments' => [

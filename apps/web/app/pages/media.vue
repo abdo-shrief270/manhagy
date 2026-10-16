@@ -1,6 +1,6 @@
 <template>
   <div class="max-w-5xl space-y-6">
-    <PageHeader title="الفيديوهات والملازم" description="الفيديو بيترفع على طول لمزوّد الفيديو المحمي، ومحدش يقدر يحمّله. الملازم PDF بتتفتح بلينك بيقفل بعد دقايق.">
+    <PageHeader title="الفيديوهات والملازم" description="الفيديو بيترفع على سيرفر منهجي، وبيتحوّل لكذا جودة ويتشفّر، فمحدش يقدر يحمّله. الملازم PDF بتتفتح بلينك بيقفل بعد دقايق.">
       <UButton icon="i-lucide-upload" label="ارفع فيديو أو PDF" :loading="uploader.uploading.value" @click="input?.click()" />
       <input ref="input" type="file" class="hidden" accept="video/*,application/pdf" multiple @change="onFiles">
     </PageHeader>
@@ -10,6 +10,9 @@
         بيترفع: {{ queue[0] }} <span v-if="queue.length > 1" class="text-(--ui-text-muted)">(وكمان {{ queue.length - 1 }})</span>
       </p>
       <UProgress :model-value="uploader.progress.value" />
+      <p class="text-xs text-(--ui-text-muted)">
+        سيب الصفحة مفتوحة لحد ما يخلص. لو النت فصل، الرفع بيكمّل من مكانه لوحده.
+      </p>
     </div>
 
     <div class="flex gap-1 rounded-(--ui-radius) bg-(--ui-bg-elevated) p-1 w-fit">
@@ -37,7 +40,7 @@
               </template>
             </p>
           </div>
-          <UBadge v-if="a.status !== 'ready'" :color="a.status === 'failed' ? 'error' : 'warning'" variant="subtle" :label="a.status === 'failed' ? 'فشل' : 'بيتجهّز'" />
+          <UBadge v-if="a.status !== 'ready'" :color="a.status === 'failed' ? 'error' : 'warning'" variant="subtle" :icon="a.status === 'processing' ? 'i-lucide-loader' : undefined" :label="STATUS[a.status]" />
           <UButton v-if="a.status !== 'ready' && a.status !== 'failed'" size="xs" color="neutral" variant="ghost" icon="i-lucide-refresh-cw" aria-label="حدّث" @click="check(a.id)" />
         </div>
       </div>
@@ -58,6 +61,23 @@ const queue = ref<string[]>([])
 const kinds = [{ value: '', label: 'الكل' }, { value: 'video', label: 'فيديوهات' }, { value: 'file', label: 'ملازم' }] as const
 const kind = ref<'' | 'video' | 'file'>('')
 const { data: assets, refresh } = await useAsyncData('media', async () => (await api<{ data: MediaAsset[] }>('/media', { query: { kind: kind.value || undefined } })).data, { watch: [kind] })
+const STATUS: Record<string, string> = { uploading: 'لسه بيترفع', processing: 'بيتحوّل للجودات', failed: 'فشل — ارفعه تاني' }
+
+// Videos being encoded: ask every 15 s until they're ready.
+const timer = setInterval(async () => {
+  const waiting = assets.value?.filter(a => a.kind === 'video' && a.status === 'processing') ?? []
+  if (!waiting.length || document.hidden) return
+  await Promise.all(waiting.map(a => api(`/media/${a.id}/check`, { method: 'POST' }).catch(() => {})))
+  await refresh()
+}, 15_000)
+onBeforeUnmount(() => clearInterval(timer))
+
+// Leaving mid-upload would cut it.
+function warn(e: BeforeUnloadEvent) {
+  if (uploader.uploading.value) e.preventDefault()
+}
+onMounted(() => window.addEventListener('beforeunload', warn))
+onBeforeUnmount(() => window.removeEventListener('beforeunload', warn))
 
 async function onFiles(e: Event) {
   const files = [...((e.target as HTMLInputElement).files ?? [])]

@@ -13,6 +13,11 @@ RUN composer dump-autoload --no-dev --optimize --classmap-authoritative --no-scr
 # ---- Runtime ----
 FROM dunglas/frankenphp:1-php8.4
 
+# ffmpeg encodes the teachers' videos into encrypted HLS (Media\Jobs\TranscodeVideo, the worker).
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ffmpeg \
+ && rm -rf /var/lib/apt/lists/*
+
 RUN install-php-extensions pdo_pgsql pgsql redis intl bcmath gmp zip pcntl opcache gd exif \
  && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 

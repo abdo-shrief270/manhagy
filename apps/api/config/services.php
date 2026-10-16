@@ -63,10 +63,20 @@ return [
         'url' => rtrim((string) env('MARKET_URL', ''), '/'),
     ],
 
-    // The video provider behind Media\Contracts\VideoHost. `fake` until one is chosen (docs/TECH_PLAN.md §14).
+    // Where videos live (Media\Contracts\VideoHost): `local` = our own server (ffmpeg → encrypted HLS on the
+    // private disk, served by the API), `fake` = development / tests without ffmpeg.
     'video' => [
-        'driver' => env('VIDEO_DRIVER', 'fake'),
+        'driver' => env('VIDEO_DRIVER', 'local'),
         'fake_duration' => (int) env('VIDEO_FAKE_DURATION', 600),
+        // The biggest upload (MB), the chunk the browser sends at a time, keeping the original after encoding.
+        'max_mb' => (int) env('VIDEO_MAX_MB', 4096),
+        'chunk_mb' => 8,
+        'keep_source' => (bool) env('VIDEO_KEEP_SOURCE', false),
+        // Heights encoded (only those ≤ the original's; the smallest always), and their video bitrates (kbps).
+        'renditions' => [360 => 500, 720 => 1500, 1080 => 3000], // lessons are mostly still: lower than films
+        'ffmpeg' => env('FFMPEG_BINARY', 'ffmpeg'),
+        'ffprobe' => env('FFPROBE_BINARY', 'ffprobe'),
+        'preset' => env('VIDEO_PRESET', 'veryfast'),
     ],
 
     'webpush' => [

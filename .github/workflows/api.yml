@@ -29,6 +29,8 @@ jobs:
           php-version: '8.4'
           extensions: pdo_pgsql, redis, intl, bcmath, gd
           coverage: none
+      # The self-hosted video test encodes a real clip.
+      - run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends ffmpeg
       - run: composer install --no-interaction --prefer-dist --no-progress
       - run: cp .env.example .env && php artisan key:generate
       - run: vendor/bin/pint --test

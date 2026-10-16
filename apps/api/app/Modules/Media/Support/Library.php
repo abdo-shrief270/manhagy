@@ -19,14 +19,14 @@ final class Library implements MediaLibrary
         return MediaAsset::query()->find($id)?->toSummary();
     }
 
-    public function playback(string $id, int $ttlSeconds): array
+    public function playback(string $id, int $ttlSeconds, ?string $viewer = null): array
     {
         $asset = MediaAsset::query()->find($id);
         if ($asset === null || $asset->kind !== 'video' || $asset->status !== 'ready') {
             throw new DomainRuleException('الفيديو ده لسه مش جاهز.', 'video_not_ready', 409);
         }
 
-        return $this->host->playback((string) $asset->provider_id, $ttlSeconds);
+        return $this->host->playback((string) $asset->provider_id, $ttlSeconds, $viewer);
     }
 
     public function fileUrl(string $id, int $minutes): string
@@ -41,7 +41,9 @@ final class Library implements MediaLibrary
     {
         if ($asset->kind === 'video' && $asset->status !== 'ready' && $asset->provider_id !== null) {
             $status = $this->host->status($asset->provider_id);
-            $asset->update(['status' => $status['state'], 'duration_seconds' => $status['duration_seconds'] ?? $asset->duration_seconds]);
+            if ($status['state'] !== 'uploading' || $asset->status === 'uploading') {
+                $asset->update(['status' => $status['state'], 'duration_seconds' => $status['duration_seconds'] ?? $asset->duration_seconds]);
+            }
         }
 
         return $asset;

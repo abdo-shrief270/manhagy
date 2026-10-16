@@ -30,10 +30,13 @@ final class MediaController
         return response()->json(['data' => $assets->map(fn (MediaAsset $a) => $a->toSummary())->all()]);
     }
 
-    /** A new video: the browser uploads straight to the provider with what this returns. */
+    /** A new video: the browser uploads it with what this returns (chunks to the API, or a provider's PUT). */
     public function createVideo(Request $request): JsonResponse
     {
-        $data = $request->validate(['title' => ['required', 'string', 'min:2', 'max:200'], 'size_bytes' => ['nullable', 'integer', 'min:1']]);
+        $data = $request->validate([
+            'title' => ['required', 'string', 'min:2', 'max:200'],
+            'size_bytes' => ['nullable', 'integer', 'min:1', 'max:'.(int) config('services.video.max_mb', 4096) * 1024 * 1024],
+        ], ['size_bytes.max' => 'الفيديو أكبر من '.(int) (config('services.video.max_mb', 4096) / 1024).' جيجا.']);
         $upload = $this->host->createUpload($data['title']);
         $asset = MediaAsset::query()->create([
             'kind' => 'video', 'title' => $data['title'], 'provider' => $this->host->name(), 'provider_id' => $upload['video_id'],
@@ -41,15 +44,17 @@ final class MediaController
         ]);
 
         return response()->json(['data' => [...$asset->toSummary(), 'upload' => [
-            'url' => $upload['upload_url'], 'headers' => $upload['headers'], 'expires_at' => $upload['expires_at'],
+            'method' => $upload['method'], 'url' => $upload['upload_url'], 'headers' => $upload['headers'],
+            'chunk_bytes' => $upload['chunk_bytes'], 'expires_at' => $upload['expires_at'],
         ]]], 201);
     }
 
-    /** The browser finished uploading (or the screen polls): asks the provider. */
+    /** The browser finished uploading (processing starts), or the screen polls: asks the host. */
     public function check(string $asset): JsonResponse
     {
         $found = MediaAsset::query()->findOrFail($asset);
-        if ($found->status === 'uploading') {
+        if ($found->status === 'uploading' && $found->provider_id !== null) {
+            $this->host->finishUpload($found->provider_id);
             $found->update(['status' => 'processing']);
         }
 

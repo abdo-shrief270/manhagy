@@ -8,7 +8,7 @@
     <USkeleton v-else-if="!opened" class="aspect-video w-full rounded-xl" />
 
     <template v-else-if="opened.kind === 'video' && opened.playback">
-      <VideoPlayer ref="player" :key="opened.session_id" :src="opened.playback.url" :start-at="opened.resume_at ?? 0" :watermark="watermark" :ended="ended" @reopen="open" />
+      <VideoPlayer ref="player" :key="opened.session_id" :src="opened.playback.url" :poster="opened.playback.poster" :start-at="opened.resume_at ?? 0" :watermark="watermark" :ended="ended" @reopen="open" @broken="ended = BROKEN" />
       <div class="flex flex-wrap items-center justify-between gap-2 text-sm">
         <h1 class="text-xl font-bold">
           {{ title }}
@@ -42,7 +42,7 @@ definePageMeta({ auth: true })
 type Opened = {
   kind: 'video' | 'pdf' | 'exam'
   session_id?: string
-  playback?: { url: string, expires_at: string }
+  playback?: { url: string, expires_at: string, poster?: string | null }
   resume_at?: number
   views_left?: number | null
   beat_seconds?: number
@@ -67,6 +67,9 @@ let beat: ReturnType<typeof setInterval> | undefined
 
 const { data: outline } = await useAsyncData(`outline-${courseId}`, async () => courseId ? (await api<{ data: CourseOutline }>(`/learner/courses/${courseId}`)).data : null)
 const title = computed(() => outline.value?.chapters.flatMap(c => c.lessons).find(l => l.id === id)?.title ?? '')
+
+// The player lost the stream (a newer session elsewhere, or a stale link): the student chooses to continue here.
+const BROKEN = 'الفيديو وقف. لو فتحته من جهاز أو تاب تاني، اتقفل هنا.'
 
 async function open() {
   clearInterval(beat)
