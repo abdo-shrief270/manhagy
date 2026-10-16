@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum', 'learner'])->prefix('learner')->controller(LearnerCourseController::class)->group(function (): void {
     Route::get('courses', 'index');
     Route::get('courses/{course}', 'show')->whereUuid('course');
-    Route::post('lessons/{lesson}/open', 'open')->whereUuid('lesson')->middleware('throttle:30,1');
+    Route::post('lessons/{lesson}/open', 'open')->whereUuid('lesson')->middleware(['learner.verified', 'throttle:30,1']);
     Route::post('playback/{session}/beat', 'beat')->whereUuid('session')->middleware('throttle:20,1');
     Route::post('playback/{session}/stop', 'stop')->whereUuid('session');
 });

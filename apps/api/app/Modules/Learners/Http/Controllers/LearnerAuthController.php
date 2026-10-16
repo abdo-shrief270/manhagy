@@ -9,6 +9,7 @@ use App\Modules\Learners\Models\Learner;
 use App\Modules\Learners\Models\LearnerDevice;
 use App\Modules\Learners\Models\LearnerProfile;
 use App\Modules\Learners\Support\Phone;
+use App\Modules\Learners\Support\PhoneChecks;
 use App\Modules\Learners\Support\SignIn;
 use App\Modules\Sites\Contracts\SiteDirectory;
 use App\Support\Exceptions\DomainRuleException;
@@ -26,6 +27,7 @@ final class LearnerAuthController
         private readonly SiteDirectory $sites,
         private readonly SignIn $signIn,
         private readonly CurriculumTree $curriculum,
+        private readonly PhoneChecks $checks,
     ) {}
 
     public function register(Request $request, string $slug): JsonResponse
@@ -59,7 +61,10 @@ final class LearnerAuthController
             ]);
         });
 
-        return response()->json(['token' => $token], Response::HTTP_CREATED);
+        return response()->json([
+            'token' => $token,
+            'verification' => PhoneChecks::enabled() ? $this->checks->start($data['phone'], 'verify') : null,
+        ], Response::HTTP_CREATED);
     }
 
     public function login(Request $request, string $slug): JsonResponse
@@ -91,6 +96,7 @@ final class LearnerAuthController
         return response()->json(['data' => [
             'name' => $learner->name,
             'phone' => $learner->phone,
+            'phone_verified' => $learner->phone_verified_at !== null || ! PhoneChecks::enabled(),
             'grade_id' => $profile->grade_node_id,
             'grade' => $profile->grade_node_id ? $this->curriculum->label($profile->grade_node_id) : null,
             'parent_phone' => $profile->parent_phone,
@@ -122,6 +128,67 @@ final class LearnerAuthController
         ], fn ($v) => true));
 
         return $this->me($request);
+    }
+
+    /** A fresh code to send by WhatsApp (the previous one stops working). */
+    public function startVerification(Request $request): JsonResponse
+    {
+        /** @var Learner $learner */
+        $learner = $request->user();
+        if (! PhoneChecks::enabled()) {
+            throw new DomainRuleException('تأكيد الرقم مش مطلوب دلوقتي.', 'verification_off', Response::HTTP_CONFLICT);
+        }
+        if ($learner->phone_verified_at !== null) {
+            throw new DomainRuleException('رقمك متأكد فعلاً.', 'phone_verified', Response::HTTP_CONFLICT);
+        }
+
+        return response()->json(['data' => $this->checks->start($learner->phone, 'verify')]);
+    }
+
+    /** The screen polls this while the student is in WhatsApp. */
+    public function verificationStatus(Request $request): JsonResponse
+    {
+        /** @var Learner $learner */
+        $learner = $request->user()->fresh();
+
+        return response()->json(['data' => ['verified' => $learner->phone_verified_at !== null || ! PhoneChecks::enabled()]]);
+    }
+
+    /** Forgot the password: a code to send by WhatsApp from that phone (same answer whether the phone has an account or not). */
+    public function forgotPassword(Request $request, string $slug): JsonResponse
+    {
+        $this->site($slug);
+        if (! PhoneChecks::enabled()) {
+            throw new DomainRuleException('كلّم المدرس عشان يغيّرلك كلمة السر.', 'verification_off', Response::HTTP_CONFLICT);
+        }
+        $request->merge(['phone' => Phone::e164($request->input('phone'))]);
+        $data = $request->validate(['phone' => ['required', 'phone:EG']], [], ['phone' => 'رقم الموبايل']);
+
+        return response()->json(['data' => $this->checks->start($data['phone'], 'reset')]);
+    }
+
+    /** After the WhatsApp message arrived: the new password; every device is signed out. */
+    public function resetPassword(Request $request, string $slug): JsonResponse
+    {
+        $this->site($slug);
+        $request->merge(['phone' => Phone::e164($request->input('phone'))]);
+        $data = $request->validate([
+            'phone' => ['required', 'phone:EG'],
+            'code' => ['required', 'digits:6'],
+            'password' => ['required', 'string', 'min:6', 'max:100', 'confirmed'],
+        ], [], ['password' => 'كلمة السر']);
+
+        $learner = Learner::query()->where('phone', $data['phone'])->first();
+        if ($learner === null || ! $this->checks->isConfirmed($data['phone'], 'reset', $data['code'])) {
+            throw new DomainRuleException('لسه ما وصلتناش رسالتك على واتساب. ابعتها وجرّب تاني.', 'reset_not_confirmed', Response::HTTP_CONFLICT);
+        }
+        DB::transaction(function () use ($learner, $data): void {
+            $this->checks->useReset($data['phone'], $data['code']);
+            $learner->update(['password' => $data['password'], 'phone_verified_at' => $learner->phone_verified_at ?? now()]);
+            $learner->tokens()->delete();
+        });
+
+        return response()->json(['ok' => true]);
     }
 
     public function logout(Request $request): JsonResponse

@@ -6,8 +6,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'learner'])->prefix('learner')->controller(LearnerWalletController::class)->group(function (): void {
     Route::get('wallet', 'show');
-    Route::post('wallet/topups', 'requestTopup')->middleware('throttle:10,60');
-    Route::post('courses/{course}/buy', 'buy')->whereUuid('course')->middleware('throttle:20,1');
+    Route::post('wallet/topups', 'requestTopup')->middleware(['learner.verified', 'throttle:10,60']);
+    Route::post('courses/{course}/buy', 'buy')->whereUuid('course')->middleware(['learner.verified', 'throttle:20,1']);
 });
 
 Route::middleware(['auth:sanctum', 'tenant'])->prefix('wallet')->controller(WalletController::class)->group(function (): void {

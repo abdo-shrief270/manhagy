@@ -92,6 +92,19 @@ return [
         'whatsapp' => env('SIGNUP_WHATSAPP', '+201555440882'),
     ],
 
+    // Students prove their phone by sending a WhatsApp message to the platform's number (no message is sent to them).
+    // Off while VERIFY_WHATSAPP is empty. The inbound webhook is Meta's WhatsApp Cloud API (signed with the app secret);
+    // with a token + phone number id the platform also answers «اتأكد رقمك» in the same chat.
+    'verify' => [
+        'whatsapp' => preg_replace('/\D+/', '', (string) env('VERIFY_WHATSAPP', '')),
+        'app_secret' => (string) env('WHATSAPP_APP_SECRET', ''),
+        'verify_token' => (string) env('WHATSAPP_VERIFY_TOKEN', ''),
+        'token' => (string) env('WHATSAPP_TOKEN', ''),
+        'phone_number_id' => (string) env('WHATSAPP_PHONE_ID', ''),
+        'graph_version' => env('META_GRAPH_VERSION', 'v21.0'),
+        'minutes' => 30,
+    ],
+
     'webauthn' => [
         'rp_id' => env('WEBAUTHN_RP_ID', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         'origins' => array_values(array_filter(array_map(trim(...), explode(',', (string) env('WEBAUTHN_ORIGINS', env('APP_URL', 'http://localhost')))))),

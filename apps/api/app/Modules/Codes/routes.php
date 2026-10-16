@@ -5,7 +5,7 @@ use App\Modules\Codes\Http\Controllers\DistributorController;
 use App\Modules\Codes\Http\Controllers\RedeemController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('learner/codes/redeem', RedeemController::class)->middleware(['auth:sanctum', 'learner', 'throttle:30,1']);
+Route::post('learner/codes/redeem', RedeemController::class)->middleware(['auth:sanctum', 'learner', 'learner.verified', 'throttle:30,1']);
 
 Route::middleware(['auth:sanctum', 'tenant'])->prefix('codes')->group(function (): void {
     Route::pattern('batch', '[0-9a-fA-F-]{36}');

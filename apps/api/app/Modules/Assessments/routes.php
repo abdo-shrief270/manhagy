@@ -10,7 +10,7 @@ Route::middleware(['auth:sanctum', 'learner'])->prefix('learner')->controller(Le
     Route::pattern('attempt', '[0-9a-fA-F-]{36}');
     Route::pattern('question', '[0-9a-fA-F-]{36}');
     Route::get('exams/{lesson}', 'show');
-    Route::post('exams/{lesson}/start', 'start')->middleware('throttle:20,1');
+    Route::post('exams/{lesson}/start', 'start')->middleware(['learner.verified', 'throttle:20,1']);
     Route::get('attempts/{attempt}', 'paper');
     Route::put('attempts/{attempt}/answers/{question}', 'answer')->middleware('throttle:240,1');
     Route::post('attempts/{attempt}/leave', 'leave')->middleware('throttle:60,1');
