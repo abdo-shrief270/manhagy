@@ -17,6 +17,7 @@ return new ModuleManifest(
     ],
     menu: [
         new MenuItem('/assessments/questions', 'بنك الأسئلة', 'i-lucide-list-checks', 'assessments.manage', group: 'teaching'),
+        new MenuItem('/grading', 'التصحيح', 'i-lucide-pen-line', 'assessments.grade', group: 'teaching'),
     ],
     provider: AssessmentsServiceProvider::class,
     sort: 40,
