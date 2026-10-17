@@ -7,7 +7,10 @@ namespace App\Modules\Media\Support;
 use App\Modules\Media\Contracts\MediaLibrary;
 use App\Modules\Media\Contracts\VideoHost;
 use App\Modules\Media\Models\MediaAsset;
+use App\Modules\Media\Support\Hosts\LocalVideoHost;
+use App\Modules\Media\Support\Video\VideoFiles;
 use App\Support\Exceptions\DomainRuleException;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\URL;
 
 final class Library implements MediaLibrary
@@ -27,6 +30,22 @@ final class Library implements MediaLibrary
         }
 
         return $this->host->playback((string) $asset->provider_id, $ttlSeconds, $viewer);
+    }
+
+    public function importVideo(string $title, string $localPath, ?string $byName = null): array
+    {
+        $upload = $this->host->createUpload($title);
+        if ($this->host instanceof LocalVideoHost) {
+            File::move($localPath, VideoFiles::path($upload['video_id'], 'source.part'));
+        }
+        $asset = MediaAsset::query()->create([
+            'kind' => 'video', 'title' => $title, 'provider' => $this->host->name(), 'provider_id' => $upload['video_id'],
+            'status' => 'processing', 'size_bytes' => is_file(VideoFiles::path($upload['video_id'], 'source.part')) ? filesize(VideoFiles::path($upload['video_id'], 'source.part')) : null,
+            'uploaded_by_name' => $byName,
+        ]);
+        $this->host->finishUpload($upload['video_id']);
+
+        return $this->refresh($asset)->toSummary();
     }
 
     public function fileUrl(string $id, int $minutes): string

@@ -79,6 +79,17 @@ return [
         'preset' => env('VIDEO_PRESET', 'veryfast'),
     ],
 
+    // Live lessons: the broadcast server (MediaMTX; the `live` compose service, or a server of its own later).
+    // Empty hls_url = live lessons can be scheduled but not broadcast here.
+    'live' => [
+        'hls_url' => rtrim((string) env('LIVE_HLS_URL', ''), '/'),           // what students load: {hls_url}/live/{id}/index.m3u8
+        'whip_url' => rtrim((string) env('LIVE_WHIP_URL', ''), '/'),         // the browser publishes: {whip_url}/live/{id}/whip
+        'rtmp_url' => rtrim((string) env('LIVE_RTMP_URL', ''), '/'),         // OBS: server {rtmp_url}, key {id}?key=…
+        'playback_url' => rtrim((string) env('LIVE_PLAYBACK_URL', ''), '/'), // recordings, from the server only
+        'api_url' => rtrim((string) env('LIVE_API_URL', ''), '/'),           // MediaMTX's API, from the server only
+        'secret' => (string) env('LIVE_SECRET', ''),                         // MediaMTX → our hook, and our calls to it
+    ],
+
     'webpush' => [
         'public_key' => env('VAPID_PUBLIC_KEY'),
         'private_key' => env('VAPID_PRIVATE_KEY'),

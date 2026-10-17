@@ -19,3 +19,4 @@ Schedule::command('center:schedule')->dailyAt('00:17')->withoutOverlapping();
 Schedule::command('billing:remind')->dailyAt('08:07')->withoutOverlapping();
 Schedule::command('market:sync')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('market:sync --all')->dailyAt('03:41')->withoutOverlapping();
+Schedule::command('live:sync')->everyMinute()->withoutOverlapping();

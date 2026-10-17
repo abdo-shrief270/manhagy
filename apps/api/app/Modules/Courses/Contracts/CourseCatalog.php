@@ -26,4 +26,7 @@ interface CourseCatalog
 
     /** @return array<string, mixed>|null the lesson, with its course's status as course_status */
     public function lesson(string $id): ?array;
+
+    /** @return list<array{id: string, title: string, course_id: string, course_title: string, course_status: string, publish_at: string|null, has_replay: bool}> every live lesson, soonest first */
+    public function liveLessons(): array;
 }

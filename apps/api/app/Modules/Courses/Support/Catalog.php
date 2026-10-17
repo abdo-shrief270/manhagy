@@ -61,6 +61,18 @@ final class Catalog implements CourseCatalog
         return [...$found, 'course_status' => Course::query()->whereKey($lesson->course_id)->value('status')];
     }
 
+    public function liveLessons(): array
+    {
+        $courses = Course::query()->whereIn('id', Lesson::query()->where('kind', 'live')->select('course_id'))->get()->keyBy('id');
+
+        return Lesson::query()->where('kind', 'live')->orderByRaw('publish_at is null')->orderBy('publish_at')->get()
+            ->map(fn (Lesson $l) => [
+                'id' => $l->id, 'title' => $l->title, 'course_id' => $l->course_id,
+                'course_title' => $courses[$l->course_id]->title ?? '', 'course_status' => $courses[$l->course_id]->status ?? 'draft',
+                'publish_at' => $l->publish_at?->toIso8601String(), 'has_replay' => $l->media_id !== null,
+            ])->values()->all();
+    }
+
     /**
      * @param  Collection<int, Course>  $courses
      * @return list<array<string, mixed>>

@@ -218,7 +218,13 @@ final class CourseController
         ], [], ['chapter_id' => 'الفصل', 'title' => 'اسم الدرس']);
 
         $kind = $data['kind'] ?? $lesson?->kind;
-        if ($kind === 'exam') {
+        if ($kind === 'live') {
+            // A live lesson: its start time; its recording becomes its video afterwards (LessonMedia).
+            unset($data['media_id']);
+            if (($lesson === null || array_key_exists('publish_at', $data)) && empty($data['publish_at'])) {
+                throw new DomainRuleException('حدّد ميعاد الحصة اللايف.', 'live_time_required');
+            }
+        } elseif ($kind === 'exam') {
             $data['media_id'] = null;
         } elseif (array_key_exists('media_id', $data) || $lesson === null) {
             $asset = isset($data['media_id']) ? $this->media->find($data['media_id']) : null;

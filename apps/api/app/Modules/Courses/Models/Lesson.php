@@ -14,7 +14,7 @@ use Illuminate\Support\Carbon;
  * @property string $id
  * @property string $course_id
  * @property string $chapter_id
- * @property string $kind video | pdf | exam
+ * @property string $kind video | pdf | exam | live (its recording becomes its media afterwards)
  * @property string $title
  * @property string|null $media_id
  * @property int|null $duration_seconds
@@ -30,7 +30,7 @@ final class Lesson extends Model
 {
     use BelongsToTenant, HasUuids;
 
-    public const KINDS = ['video', 'pdf', 'exam'];
+    public const KINDS = ['video', 'pdf', 'exam', 'live'];
 
     protected $table = 'course_lessons';
 

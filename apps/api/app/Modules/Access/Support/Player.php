@@ -55,6 +55,9 @@ final class Player
         if ($lesson['kind'] === 'exam') {
             return ['kind' => 'exam', 'lesson_id' => $lesson['id']]; // the exam itself: learner/exams/{lesson}
         }
+        if ($lesson['kind'] === 'live' && $lesson['media_id'] === null) {
+            return ['kind' => 'live', 'lesson_id' => $lesson['id']]; // the live room: learner/live/{lesson}
+        }
 
         return DB::transaction(function () use ($learner, $lesson, $ip): array {
             $row = LessonProgress::query()->firstOrCreate(['learner_id' => $learner['learner_id'], 'lesson_id' => $lesson['id']]);

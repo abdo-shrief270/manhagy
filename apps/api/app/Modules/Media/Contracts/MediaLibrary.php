@@ -21,6 +21,14 @@ interface MediaLibrary
      */
     public function playback(string $id, int $ttlSeconds, ?string $viewer = null): array;
 
+    /**
+     * A video file already on this server (a live lesson's recording) into the library: moved in and
+     * encoded like an upload. Returns the asset (status processing; `find` says when it's ready).
+     *
+     * @return array<string, mixed>
+     */
+    public function importVideo(string $title, string $localPath, ?string $byName = null): array;
+
     /** A signed download link for a file (PDF) valid for $minutes. */
     public function fileUrl(string $id, int $minutes): string;
 }
