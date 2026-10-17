@@ -429,10 +429,28 @@ export interface LiveStudio {
   viewers: number
   peak_viewers: number
   attended: number
-  recording: 'none' | 'collecting' | 'processing' | 'ready' | 'failed'
+  recording: 'none' | 'recording' | 'collecting' | 'processing' | 'ready' | 'failed'
   recording_error: string | null
   server_ready: boolean
-  publishing: { whip: string | null, rtmp_server: string | null, rtmp_key: string } | null
+  obs_available: boolean
+  obs: { server: string, key: string } | null
+  hands: LiveHand[]
+}
+
+/** A student who raised a hand, or was given the floor. */
+export interface LiveHand {
+  learner_id: string
+  identity: string
+  name: string
+  status: 'raised' | 'speaking'
+  camera: boolean
+  raised_at: string | null
+}
+
+export interface LiveAccess {
+  url: string
+  token: string
+  identity: string
 }
 
 export interface LiveMessage {

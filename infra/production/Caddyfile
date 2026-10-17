@@ -132,9 +132,9 @@
 	}
 }
 
-# Live lessons (LIVE_DOMAIN, e.g. live.manhagy.online): students' HLS and the studio's WHIP, both from
-# the broadcast server (MediaMTX asks the API before anything). An exact name, so it wins over the
-# students' wildcard. Without one it answers nowhere.
+# Live lessons (LIVE_DOMAIN, e.g. live.manhagy.online): LiveKit's signalling (a websocket; the media
+# itself goes straight to the server's UDP / TCP ports). An exact name, so it wins over the students'
+# wildcard. Without one it answers nowhere.
 {$LIVE_ADDRESS:http://live.invalid} {
 	header {
 		Strict-Transport-Security "max-age=31536000"
@@ -142,20 +142,13 @@
 		-Server
 	}
 
-	# The browser publishing: POST /live/{id}/whip, then PATCH / DELETE on the address it got back.
-	@whip path_regexp ^/live/[0-9a-f-]{36}/whip
-	handle @whip {
-		reverse_proxy live:8889
-	}
-	# Students watching (LL-HLS: playlists change every part, never cached on the way).
-	@hls path_regexp ^/live/[0-9a-f-]{36}/
-	handle @hls {
-		reverse_proxy live:8888 {
-			flush_interval -1
-		}
+	# Only what browsers use: the room websocket and its connection check. The server API (rooms,
+	# recordings) is reached by the API inside the network, never from outside.
+	handle /twirp/* {
+		respond 404
 	}
 	handle {
-		respond 404
+		reverse_proxy livekit:7880
 	}
 }
 

@@ -48,7 +48,47 @@
           </p>
           <UButton label="ادخل تاني هنا" @click="join" />
         </div>
-        <LivePlayer v-else-if="joined?.stream_url" ref="player" :key="joined.attendance_id" :src="joined.stream_url" :watermark="joined.watermark?.text ?? null" @broken="left = 'البث وقف. لو فتحته من جهاز تاني، اتقفل هنا.'" />
+        <template v-else>
+          <LiveStage :tracks="lk.tracks.value" :speaking="lk.speaking.value">
+            <template #empty>
+              <div class="space-y-2">
+                <UIcon name="i-lucide-radio" class="mx-auto size-10" />
+                <p class="text-sm">
+                  {{ lk.state.value === 'connected' ? 'المدرس معاك، الصورة جاية…' : 'بنوصّل بالحصة…' }}
+                </p>
+              </div>
+            </template>
+            <template #overlay>
+              <!-- The student's name and phone, moving around: a leaked recording says whose account it came from. -->
+              <div v-if="joined?.watermark" class="pointer-events-none absolute text-sm font-bold text-white/35 transition-all duration-[1500ms] [text-shadow:0_1px_2px_rgba(0,0,0,.5)]" :style="{ top: `${mark.top}%`, left: `${mark.left}%` }" dir="rtl">
+                {{ joined.watermark.text }}
+              </div>
+              <span class="absolute start-3 top-3 rounded-md bg-red-600 px-2 py-0.5 text-xs font-bold text-white">● لايف</span>
+              <span v-if="lk.state.value === 'reconnecting'" class="absolute end-3 top-3 rounded-md bg-amber-500 px-2 py-0.5 text-xs font-bold text-white">بنرجّع الاتصال…</span>
+              <UButton v-if="!lk.canPlayAudio.value" class="absolute inset-x-0 bottom-3 mx-auto w-fit" icon="i-lucide-volume-2" label="اضغط عشان تسمع المدرس" @click="lk.startAudio()" />
+            </template>
+          </LiveStage>
+
+          <!-- Raising a hand; speaking once the teacher gives the floor. -->
+          <div class="app-card flex flex-wrap items-center gap-2 p-3">
+            <template v-if="hand?.status === 'speaking'">
+              <UIcon name="i-lucide-mic" class="size-5 text-(--ui-success)" />
+              <span class="w-full text-sm font-bold sm:w-auto sm:flex-1">المدرس اداك الكلمة، الكل سامعك دلوقتي.</span>
+              <UButton :color="lk.mic.value ? 'primary' : 'neutral'" :variant="lk.mic.value ? 'soft' : 'outline'" :icon="lk.mic.value ? 'i-lucide-mic' : 'i-lucide-mic-off'" :label="lk.mic.value ? 'اقفل المايك' : 'افتح المايك'" @click="toggle('mic', !lk.mic.value)" />
+              <UButton v-if="lk.canPublish.value.includes('camera')" :color="lk.camera.value ? 'primary' : 'neutral'" :variant="lk.camera.value ? 'soft' : 'outline'" :icon="lk.camera.value ? 'i-lucide-video' : 'i-lucide-video-off'" :label="lk.camera.value ? 'اقفل الكاميرا' : 'افتح الكاميرا'" @click="toggle('camera', !lk.camera.value)" />
+              <UButton color="neutral" variant="ghost" label="خلّصت" @click="raise(false)" />
+            </template>
+            <template v-else-if="hand?.status === 'raised'">
+              <UIcon name="i-lucide-hand" class="size-5 text-(--ui-warning)" />
+              <span class="flex-1 text-sm">إيدك مرفوعة… المدرس هيدّيلك المايك.</span>
+              <UButton color="neutral" variant="outline" label="نزّل إيدك" :loading="raising" @click="raise(false)" />
+            </template>
+            <template v-else>
+              <span class="flex-1 text-sm text-(--ui-text-muted)">عايز تسأل بصوتك؟</span>
+              <UButton color="warning" variant="soft" icon="i-lucide-hand" label="ارفع إيدك" :loading="raising" @click="raise(true)" />
+            </template>
+          </div>
+        </template>
       </template>
 
       <!-- Poll -->
@@ -98,7 +138,8 @@
 
 <script setup lang="ts">
 interface Room { lesson_id: string, title: string, starts_at: string | null, status: 'idle' | 'live' | 'ended', chat_mode: 'open' | 'questions' | 'off', replay_ready: boolean }
-interface Joined extends Room { attendance_id?: string, stream_url?: string, beat_seconds?: number, watermark?: { text: string } }
+interface Hand { learner_id: string, status: 'raised' | 'speaking', camera: boolean }
+interface Joined extends Room { attendance_id?: string, livekit?: { url: string, token: string, identity: string }, hand?: Hand | null, beat_seconds?: number, watermark?: { text: string } }
 interface Message { id: string, seq: number, kind: 'chat' | 'question', body: string, author: string, from_teacher: boolean, mine: boolean, pinned: boolean, answered: boolean }
 interface Poll { id: string, question: string, options: string[], open: boolean, my_vote: number | null, results: number[] | null, votes: number }
 
@@ -117,13 +158,23 @@ const error = ref<string | null>(null)
 const left = ref<string | null>(null)
 const messages = ref<Message[]>([])
 const poll = ref<Poll | null>(null)
+const hand = ref<Hand | null>(null)
 const viewers = ref(0)
 const draft = ref('')
 const asking = ref(false)
+const raising = ref(false)
 const list = ref<HTMLElement | null>(null)
-const player = ref<{ playing: () => boolean } | null>(null)
 const now = ref(Date.now())
+const mark = reactive({ top: 10, left: 10 })
 let lastSeq = 0
+
+// The server nudges the room when something changes (a message, the floor, a poll): look again at once.
+let pending: ReturnType<typeof setTimeout> | undefined
+const lk = useLiveRoom((type) => {
+  clearTimeout(pending)
+  // Hundreds of students get the same nudge: spread their requests over a second.
+  pending = setTimeout(() => feed().catch(() => {}), type === 'ended' ? 0 : Math.random() * 1000)
+})
 
 const countdown = computed(() => {
   if (!room.value?.starts_at) return ''
@@ -141,15 +192,62 @@ async function join() {
   try {
     const res = (await api<{ data: Joined }>(`/learner/live/${lessonId}/join`, { method: 'POST' })).data
     room.value = res
-    joined.value = res.stream_url ? res : null
+    joined.value = res.livekit ? res : null
+    hand.value = res.hand ?? null
+    if (res.livekit) await lk.connect(res.livekit.url, res.livekit.token)
   }
   catch (e) {
-    error.value = apiMessage(e)
+    error.value = apiMessage(e) || 'ما قدرناش نوصل للحصة. جرّب تاني.'
+  }
+}
+
+// Disconnected by the server: another device took over, or the teacher ended it.
+watch(() => lk.reason.value, (r) => {
+  if (r === 'replaced') left.value = 'فتحت الحصة من جهاز أو تاب تاني، فاتقفلت هنا.'
+  else if (r === 'ended' || r === 'removed') feed().catch(() => {})
+  else if (r === 'lost' && room.value?.status === 'live') left.value = 'النت فصل. ادخل تاني.'
+})
+
+// The teacher gave the floor: the microphone opens (the browser asks first); taken back: LiveKit closes it.
+watch(() => lk.canPublish.value.includes('microphone'), (allowed, before) => {
+  if (allowed && !before && hand.value?.status !== 'raised') toggle('mic', true)
+})
+
+// Taken back by the teacher: whatever was open closes here too.
+watch(() => lk.canPublish.value.join(), () => {
+  if (lk.mic.value && !lk.canPublish.value.includes('microphone')) lk.toggle('mic', false).catch(() => {})
+  if (lk.camera.value && !lk.canPublish.value.includes('camera')) lk.toggle('camera', false).catch(() => {})
+})
+
+async function toggle(kind: 'mic' | 'camera', on: boolean) {
+  try {
+    await lk.toggle(kind, on)
+  }
+  catch {
+    toast.add({ color: 'error', title: kind === 'mic' ? 'المتصفح ما سمحش بالمايك. اسمح بيه من شريط العنوان.' : 'المتصفح ما سمحش بالكاميرا.' })
+  }
+}
+
+async function raise(raised: boolean) {
+  raising.value = true
+  try {
+    if (!raised) {
+      // Off here first, so nobody hears the rest while the server takes the floor back.
+      await lk.toggle('mic', false).catch(() => {})
+      await lk.toggle('camera', false).catch(() => {})
+    }
+    hand.value = (await api<{ data: Hand | null }>(`/learner/live/${lessonId}/hand`, { method: 'POST', body: { raised } })).data
+  }
+  catch (e) {
+    toast.add({ color: 'error', title: apiMessage(e) })
+  }
+  finally {
+    raising.value = false
   }
 }
 
 async function feed() {
-  const res = (await api<{ data: Room & { messages: Message[], poll: Poll | null } }>(`/learner/live/${lessonId}/feed`, { query: { after: lastSeq } })).data
+  const res = (await api<{ data: Room & { messages: Message[], poll: Poll | null, hand: Hand | null } }>(`/learner/live/${lessonId}/feed`, { query: { after: lastSeq } })).data
   const before = room.value?.status
   room.value = { ...room.value!, ...res }
   if (res.messages.length) {
@@ -158,6 +256,10 @@ async function feed() {
     nextTick(() => list.value?.scrollTo({ top: list.value.scrollHeight, behavior: 'smooth' }))
   }
   poll.value = res.poll
+  const wasSpeaking = hand.value?.status === 'speaking'
+  hand.value = res.hand
+  if (hand.value?.status === 'speaking' && !wasSpeaking && lk.canPublish.value.includes('microphone') && !lk.mic.value) toggle('mic', true)
+  if (res.status === 'ended') lk.disconnect()
   // The teacher just went live: in.
   if (before === 'idle' && res.status === 'live') await join()
 }
@@ -165,12 +267,14 @@ async function feed() {
 async function beat() {
   if (!joined.value?.attendance_id || left.value) return
   try {
-    const res = (await api<{ data: { viewers: number } }>(`/learner/live/attendances/${joined.value.attendance_id}/beat`, { method: 'POST', body: { playing: player.value?.playing() ?? false } })).data
+    const playing = lk.state.value === 'connected' && lk.tracks.value.some(t => t.teacher)
+    const res = (await api<{ data: { viewers: number } }>(`/learner/live/attendances/${joined.value.attendance_id}/beat`, { method: 'POST', body: { playing } })).data
     viewers.value = res.viewers
   }
   catch (e) {
     if (apiCode(e) === 'live_left') {
       const reason = (e as { data?: { reason?: string } }).data?.reason
+      lk.disconnect()
       if (reason === 'session_ended') room.value = { ...room.value!, status: 'ended' }
       else left.value = apiMessage(e)
     }
@@ -204,13 +308,22 @@ async function vote(option: number) {
 let feedTimer: ReturnType<typeof setInterval> | undefined
 let beatTimer: ReturnType<typeof setInterval> | undefined
 let clock: ReturnType<typeof setInterval> | undefined
+let markTimer: ReturnType<typeof setInterval> | undefined
 onMounted(async () => {
   await join()
   if (error.value) return
   await feed().catch(() => {})
-  feedTimer = setInterval(() => !document.hidden && feed().catch(() => {}), 4000)
+  // A fallback for nudges (and the waiting room's way to notice the start).
+  let tick = 0
+  feedTimer = setInterval(() => !document.hidden && (lk.state.value !== 'connected' || ++tick % 3 === 0) && feed().catch(() => {}), 4000)
   beatTimer = setInterval(beat, (joined.value?.beat_seconds ?? 30) * 1000)
   clock = setInterval(() => (now.value = Date.now()), 1000)
+  const jump = () => {
+    mark.top = 5 + Math.random() * 80
+    mark.left = 5 + Math.random() * 60
+  }
+  jump()
+  markTimer = setInterval(jump, 12000)
 })
 
 function leave() {
@@ -221,6 +334,8 @@ onBeforeUnmount(() => {
   clearInterval(feedTimer)
   clearInterval(beatTimer)
   clearInterval(clock)
+  clearInterval(markTimer)
+  clearTimeout(pending)
   leave()
 })
 </script>

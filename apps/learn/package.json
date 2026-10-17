@@ -13,6 +13,7 @@
     "@iconify-json/lucide": "^1.2.137",
     "@nuxt/ui": "^4.11.2",
     "hls.js": "^1.7.3",
+    "livekit-client": "^2.23.0",
     "nuxt": "^4.5.2",
     "qrcode": "^1.5.4",
     "tailwindcss": "^4.3.3"

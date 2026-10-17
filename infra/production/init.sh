@@ -28,11 +28,10 @@ sed \
   -e "s|^DB_PASSWORD=.*|DB_PASSWORD=$(rand 24)|" \
   -e "s|^REDIS_PASSWORD=.*|REDIS_PASSWORD=$(rand 24)|" \
   -e "s|^WHATSAPP_VERIFY_TOKEN=.*|WHATSAPP_VERIFY_TOKEN=$(rand 16)|" \
-  -e "s|^LIVE_SECRET=.*|LIVE_SECRET=$(rand 24)|" \
   -e "s|^LIVE_DOMAIN=.*|LIVE_DOMAIN=live.${ROOT}|" \
-  -e "s|^LIVE_HLS_URL=.*|LIVE_HLS_URL=https://live.${ROOT}|" \
-  -e "s|^LIVE_WHIP_URL=.*|LIVE_WHIP_URL=https://live.${ROOT}|" \
-  -e "s|^LIVE_RTMP_URL=.*|LIVE_RTMP_URL=rtmp://live.${ROOT}:1935|" \
+  -e "s|^LIVEKIT_URL=.*|LIVEKIT_URL=wss://live.${ROOT}|" \
+  -e "s|^LIVEKIT_API_KEY=.*|LIVEKIT_API_KEY=API$(rand 6)|" \
+  -e "s|^LIVEKIT_API_SECRET=.*|LIVEKIT_API_SECRET=$(rand 24)|" \
   .env.example > .env
 
 if [[ "$EDGE" == "nginx" ]]; then
@@ -42,4 +41,4 @@ fi
 chmod 600 .env
 echo "Created .env for ${ROOT} (app.${ROOT}, *.${ROOT}). Keep a copy of it somewhere safe (APP_KEY, DB password)."
 echo "DNS: point ${ROOT}, www.${ROOT}, app.${ROOT}, live.${ROOT} and *.${ROOT} (and the admin domain, if any) at this server."
-echo "Live lessons: set LIVE_PUBLIC_IP in .env and open 1935/tcp and 8189/udp in the firewall."
+echo "Live lessons: set LIVE_PUBLIC_IP in .env and open 7881/tcp and 7882/udp in the firewall (+ 1935/tcp for OBS)."

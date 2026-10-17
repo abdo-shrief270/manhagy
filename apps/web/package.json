@@ -17,6 +17,7 @@
     "echarts": "^6.1.0",
     "jsbarcode": "^3.12.3",
     "laravel-echo": "^2.5.0",
+    "livekit-client": "^2.23.0",
     "nuxt": "^4.5.2",
     "pinia": "^4.0.3",
     "pusher-js": "^8.6.0",

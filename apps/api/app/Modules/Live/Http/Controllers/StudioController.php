@@ -13,7 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-/** The teacher's studio: the live lessons, going off air, the stream key, chat moderation, polls, attendance. */
+/** The teacher's studio: the live lessons, going live, the floor, chat moderation, polls, attendance, ending. */
 final class StudioController
 {
     public function __construct(private readonly Studio $studio) {}
@@ -31,11 +31,21 @@ final class StudioController
         ], $lessons)]);
     }
 
-    public function show(Request $request, string $lesson): JsonResponse
+    public function show(string $lesson): JsonResponse
     {
         [$found, $session] = $this->studio->session($lesson);
 
-        return response()->json(['data' => $this->studio->state($found, $session, (bool) $request->user()?->can('live.host'))]);
+        return response()->json(['data' => $this->studio->state($found, $session)]);
+    }
+
+    /** Into the room: the host publishes (and the lesson goes live), a moderator watches hidden. */
+    public function join(Request $request, string $lesson): JsonResponse
+    {
+        [$found, $session] = $this->studio->session($lesson);
+        $user = $request->user();
+        $access = $this->studio->join($session, (string) $user->getAuthIdentifier(), (string) $user->name, $user->can('live.host'));
+
+        return response()->json(['data' => [...$this->studio->state($found, $session->refresh()), 'livekit' => $access]]);
     }
 
     public function update(Request $request, string $lesson): JsonResponse
@@ -43,33 +53,41 @@ final class StudioController
         $data = $request->validate(['chat_mode' => ['required', Rule::in(LiveSession::CHAT_MODES)]]);
         [$found, $session] = $this->studio->session($lesson);
         $session->forceFill($data)->save();
+        $this->studio->nudge($session);
 
-        return response()->json(['data' => $this->studio->state($found, $session, (bool) $request->user()?->can('live.host'))]);
+        return response()->json(['data' => $this->studio->state($found, $session)]);
     }
 
-    public function end(Request $request, string $lesson): JsonResponse
+    public function floor(Request $request, string $lesson): JsonResponse
+    {
+        $data = $request->validate(['learner_id' => ['required', 'uuid'], 'allow' => ['required', 'boolean'], 'camera' => ['sometimes', 'boolean']]);
+        [, $session] = $this->studio->session($lesson);
+
+        return response()->json(['data' => $this->studio->floor($session, $data['learner_id'], (bool) $data['allow'], (bool) ($data['camera'] ?? false))]);
+    }
+
+    public function obs(Request $request, string $lesson): JsonResponse
+    {
+        [$found, $session] = $this->studio->session($lesson);
+        $this->studio->obs($session, (string) $request->user()->getAuthIdentifier(), (string) $request->user()->name);
+
+        return response()->json(['data' => $this->studio->state($found, $session)]);
+    }
+
+    public function end(string $lesson): JsonResponse
     {
         [$found, $session] = $this->studio->session($lesson);
         $this->studio->end($session);
 
-        return response()->json(['data' => $this->studio->state($found, $session->refresh(), true)]);
-    }
-
-    public function rotateKey(string $lesson): JsonResponse
-    {
-        [$found, $session] = $this->studio->session($lesson);
-        $this->studio->rotateKey($session);
-
-        return response()->json(['data' => $this->studio->state($found, $session, true)]);
+        return response()->json(['data' => $this->studio->state($found, $session->refresh())]);
     }
 
     public function feed(Request $request, string $lesson): JsonResponse
     {
         $request->validate(['after' => ['nullable', 'integer', 'min:0']]);
-        $after = $request->integer('after');
         [, $session] = $this->studio->session($lesson);
 
-        return response()->json(['data' => $this->studio->feed($session, $after)]);
+        return response()->json(['data' => $this->studio->feed($session, $request->integer('after'))]);
     }
 
     public function post(Request $request, string $lesson): JsonResponse
@@ -80,6 +98,7 @@ final class StudioController
             'session_id' => $session->id, 'learner_id' => null, 'author_name' => (string) $request->user()?->name,
             'kind' => 'chat', 'body' => trim($data['body']), 'created_at' => now(),
         ]);
+        $this->studio->nudge($session);
 
         return response()->json(['data' => $message->refresh()->toSummary()], 201);
     }
@@ -89,6 +108,10 @@ final class StudioController
         $data = $request->validate(['pinned' => ['sometimes', 'boolean'], 'answered' => ['sometimes', 'boolean'], 'hidden' => ['sometimes', 'boolean']]);
         $found = LiveMessage::query()->findOrFail($message);
         $found->update($data);
+        $session = LiveSession::query()->find($found->session_id);
+        if ($session !== null) {
+            $this->studio->nudge($session, 'moderated');
+        }
 
         return response()->json(['data' => $found->toSummary()]);
     }
@@ -103,6 +126,7 @@ final class StudioController
         [, $session] = $this->studio->session($lesson);
         LivePoll::query()->where('session_id', $session->id)->whereNull('closed_at')->update(['closed_at' => now()]);
         $poll = LivePoll::query()->create(['session_id' => $session->id, 'question' => $data['question'], 'options' => array_values(array_map('trim', $data['options']))]);
+        $this->studio->nudge($session, 'poll');
 
         return response()->json(['data' => $poll->toSummary(true)], 201);
     }
@@ -111,6 +135,10 @@ final class StudioController
     {
         $found = LivePoll::query()->findOrFail($poll);
         $found->update(['closed_at' => $found->closed_at ?? now()]);
+        $session = LiveSession::query()->find($found->session_id);
+        if ($session !== null) {
+            $this->studio->nudge($session, 'poll');
+        }
 
         return response()->json(['data' => $found->toSummary(true)]);
     }

@@ -79,15 +79,20 @@ return [
         'preset' => env('VIDEO_PRESET', 'veryfast'),
     ],
 
-    // Live lessons: the broadcast server (MediaMTX; the `live` compose service, or a server of its own later).
-    // Empty hls_url = live lessons can be scheduled but not broadcast here.
+    // Live lessons: our self-hosted LiveKit server (WebRTC, under half a second; the `livekit` compose
+    // service, or a server of its own later — only these change). Empty url = live lessons can be
+    // scheduled but not held here. `recordings_path` = where Egress's MP4s appear for the API.
     'live' => [
-        'hls_url' => rtrim((string) env('LIVE_HLS_URL', ''), '/'),           // what students load: {hls_url}/live/{id}/index.m3u8
-        'whip_url' => rtrim((string) env('LIVE_WHIP_URL', ''), '/'),         // the browser publishes: {whip_url}/live/{id}/whip
-        'rtmp_url' => rtrim((string) env('LIVE_RTMP_URL', ''), '/'),         // OBS: server {rtmp_url}, key {id}?key=…
-        'playback_url' => rtrim((string) env('LIVE_PLAYBACK_URL', ''), '/'), // recordings, from the server only
-        'api_url' => rtrim((string) env('LIVE_API_URL', ''), '/'),           // MediaMTX's API, from the server only
-        'secret' => (string) env('LIVE_SECRET', ''),                         // MediaMTX → our hook, and our calls to it
+        'url' => rtrim((string) env('LIVEKIT_URL', ''), '/'),            // what browsers connect to: wss://live.<domain>
+        'api_url' => rtrim((string) env('LIVEKIT_API_URL', ''), '/'),    // from the server: http://livekit:7880
+        'key' => (string) env('LIVEKIT_API_KEY', ''),
+        'secret' => (string) env('LIVEKIT_API_SECRET', ''),
+        'recording' => (bool) env('LIVEKIT_RECORDING', true),             // Egress records every lesson
+        'recordings_path' => rtrim((string) env('LIVEKIT_RECORDINGS_PATH', '/live-recordings'), '/'),
+        // LiveKit on a server of its own: where the API downloads finished recordings (infra/live).
+        'recordings_url' => (string) env('LIVEKIT_RECORDINGS_URL', ''),
+        'egress_path' => rtrim((string) env('LIVEKIT_EGRESS_PATH', '/out'), '/'), // the same folder, as Egress sees it
+        'ingress' => (bool) env('LIVEKIT_INGRESS', false),               // OBS (RTMP) through LiveKit Ingress
     ],
 
     'webpush' => [

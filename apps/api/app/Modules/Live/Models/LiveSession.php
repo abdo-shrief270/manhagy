@@ -14,18 +14,20 @@ use Illuminate\Support\Carbon;
  * @property string $id
  * @property string $tenant_id
  * @property string $lesson_id
- * @property string $stream_key
  * @property string $status idle | live | ended
  * @property string $chat_mode open | questions | off
  * @property Carbon|null $started_at
- * @property Carbon|null $last_published_at
  * @property Carbon|null $ended_at
  * @property int $peak_viewers
- * @property string $recording none | collecting | processing | ready | failed
+ * @property string|null $egress_id
+ * @property string $recording none | recording | collecting | processing | ready | failed
  * @property string|null $replay_media_id
  * @property string|null $recording_error
+ * @property string|null $ingress_id
+ * @property string|null $ingress_url
+ * @property string|null $ingress_key
  */
-#[Fillable(['tenant_id', 'lesson_id', 'stream_key', 'status', 'chat_mode', 'started_at', 'last_published_at', 'ended_at', 'peak_viewers', 'recording', 'replay_media_id', 'recording_error'])]
+#[Fillable(['tenant_id', 'lesson_id', 'status', 'chat_mode', 'started_at', 'ended_at', 'peak_viewers', 'egress_id', 'recording', 'replay_media_id', 'recording_error', 'ingress_id', 'ingress_url', 'ingress_key'])]
 final class LiveSession extends Model
 {
     use BelongsToTenant, HasUuids;
@@ -34,16 +36,16 @@ final class LiveSession extends Model
 
     protected $attributes = ['status' => 'idle', 'chat_mode' => 'open', 'peak_viewers' => 0, 'recording' => 'none'];
 
-    protected $hidden = ['stream_key'];
+    protected $hidden = ['ingress_key'];
 
     protected function casts(): array
     {
-        return ['stream_key' => 'encrypted', 'started_at' => 'datetime', 'last_published_at' => 'datetime', 'ended_at' => 'datetime', 'peak_viewers' => 'integer'];
+        return ['ingress_key' => 'encrypted', 'started_at' => 'datetime', 'ended_at' => 'datetime', 'peak_viewers' => 'integer'];
     }
 
-    /** Where it is published and read on the live server. */
-    public function path(): string
+    /** Its room on the LiveKit server. */
+    public function room(): string
     {
-        return "live/{$this->id}";
+        return "live-{$this->id}";
     }
 }

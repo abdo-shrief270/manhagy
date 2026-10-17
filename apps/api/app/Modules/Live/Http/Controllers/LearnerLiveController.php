@@ -63,6 +63,15 @@ final class LearnerLiveController
         return response()->json(['data' => $this->room->post($learner, $session, $data['kind'], trim($data['body']))], 201);
     }
 
+    public function hand(Request $request, string $lesson): JsonResponse
+    {
+        $data = $request->validate(['raised' => ['required', 'boolean']]);
+        $learner = $this->learner();
+        [, $session] = $this->room->enter($learner, $lesson);
+
+        return response()->json(['data' => $this->room->hand($learner, $session, (bool) $data['raised'])]);
+    }
+
     public function vote(Request $request, string $poll): JsonResponse
     {
         $data = $request->validate(['option' => ['required', 'integer', 'min:0', 'max:9']]);

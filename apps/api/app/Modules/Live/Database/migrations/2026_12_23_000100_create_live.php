@@ -8,21 +8,24 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // One per live lesson: the broadcast at path live/{id} on the live server.
+        // One per live lesson: a room on the LiveKit server (live-{id}), recorded by its Egress.
         Schema::create('live_sessions', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->foreignUuid('tenant_id')->constrained('tenants')->cascadeOnDelete();
             $table->uuid('lesson_id')->unique();
-            $table->text('stream_key'); // encrypted: shown to the teacher for OBS
             $table->string('status', 10)->default('idle'); // idle | live | ended
             $table->string('chat_mode', 10)->default('open'); // open | questions | off
             $table->timestamp('started_at')->nullable();
-            $table->timestamp('last_published_at')->nullable();
             $table->timestamp('ended_at')->nullable();
             $table->unsignedInteger('peak_viewers')->default(0);
-            $table->string('recording', 12)->default('none'); // none | collecting | processing | ready | failed
+            $table->string('egress_id', 64)->nullable();
+            $table->string('recording', 12)->default('none'); // none | recording | collecting | processing | ready | failed
             $table->uuid('replay_media_id')->nullable();
             $table->string('recording_error', 300)->nullable();
+            // OBS (LiveKit Ingress, RTMP): made on demand.
+            $table->string('ingress_id', 64)->nullable();
+            $table->string('ingress_url', 300)->nullable();
+            $table->text('ingress_key')->nullable(); // encrypted
             $table->timestamps();
             $table->index(['status', 'recording']);
         });
@@ -58,6 +61,20 @@ return new class extends Migration
             $table->boolean('hidden')->default(false);
             $table->timestamp('created_at');
             $table->index(['session_id', 'seq']);
+        });
+
+        // A raised hand: the teacher lets the student speak (microphone, and the camera if allowed).
+        Schema::create('live_hands', function (Blueprint $table): void {
+            $table->uuid('id')->primary();
+            $table->foreignUuid('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->foreignUuid('session_id')->constrained('live_sessions')->cascadeOnDelete();
+            $table->uuid('learner_id');
+            $table->string('name', 120);
+            $table->string('status', 10); // raised | speaking | done
+            $table->boolean('camera')->default(false);
+            $table->timestamp('raised_at');
+            $table->timestamp('decided_at')->nullable();
+            $table->unique(['session_id', 'learner_id']);
         });
 
         Schema::create('live_polls', function (Blueprint $table): void {

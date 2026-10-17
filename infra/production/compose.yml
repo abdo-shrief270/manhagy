@@ -11,6 +11,8 @@ x-php: &php
   restart: unless-stopped
   volumes:
     - storage:/app/storage
+    # Live lesson recordings, written by Egress (/out there), taken into the video library by the worker.
+    - live_recordings:/live-recordings
   depends_on:
     pgsql:
       condition: service_healthy
@@ -72,23 +74,82 @@ services:
     depends_on:
       - api
 
-  # The broadcast server (MediaMTX) for live lessons. Every publish / read is asked of the API's hook.
-  # Later on a server of its own: infra/live (then remove this service and point LIVE_* there).
-  live:
-    image: ${MEDIAMTX_IMAGE:-bluenviron/mediamtx:latest}
+  # Live lessons: LiveKit (WebRTC SFU — the delay of a call, students can speak when given the floor).
+  # Browsers reach it at LIVE_DOMAIN (signalling through Caddy) and send / receive media straight on
+  # 7882/udp (7881/tcp when UDP is blocked). Later on a server of its own:
+  # infra/live (then remove livekit / egress / ingress here and point LIVEKIT_* there).
+  livekit:
+    image: ${LIVEKIT_IMAGE:-livekit/livekit-server:v1.13.10}
     restart: unless-stopped
     environment:
-      MTX_AUTHHTTPADDRESS: http://api/api/v1/public/live/hook/${LIVE_SECRET}
-      # The server's public IP, so browsers can send their media straight to it (WebRTC).
-      MTX_WEBRTCADDITIONALHOSTS: ${LIVE_PUBLIC_IP:-}
-    volumes:
-      - ./live/mediamtx.yml:/mediamtx.yml:ro
-      - live_recordings:/recordings
+      # Read by livekit-server itself (--config-body).
+      LIVEKIT_CONFIG: |
+        port: 7880
+        rtc:
+          tcp_port: 7881
+          udp_port: 7882 # every browser's media on one port
+          use_external_ip: false
+          node_ip: ${LIVE_PUBLIC_IP:-127.0.0.1}
+        redis:
+          address: redis:6379
+          password: ${REDIS_PASSWORD}
+        keys:
+          ${LIVEKIT_API_KEY:-APIunset}: ${LIVEKIT_API_SECRET:-unset}
+        ingress:
+          rtmp_base_url: rtmp://${LIVE_DOMAIN:-live.invalid}:1935/live
+        room:
+          empty_timeout: 3600
+        logging:
+          level: warn
     ports:
-      - "1935:1935"      # RTMP: OBS
-      - "8189:8189/udp"  # WebRTC media: the studio in the browser
+      - "7881:7881"
+      - "7882:7882/udp"
     depends_on:
-      - api
+      redis:
+        condition: service_healthy
+
+  # Records each lesson (the room composited, the speaker / shared screen large) into one MP4.
+  egress:
+    image: ${LIVEKIT_EGRESS_IMAGE:-livekit/egress:v1.10.0}
+    restart: unless-stopped
+    cap_add:
+      - SYS_ADMIN # Chrome's sandbox
+    shm_size: 1gb
+    environment:
+      EGRESS_CONFIG_BODY: |
+        api_key: ${LIVEKIT_API_KEY:-APIunset}
+        api_secret: ${LIVEKIT_API_SECRET:-unset}
+        ws_url: ws://livekit:7880
+        redis:
+          address: redis:6379
+          password: ${REDIS_PASSWORD}
+        log_level: warn
+    volumes:
+      - live_recordings:/out
+    depends_on:
+      - livekit
+      - api # the shared folder is made by the api image (writable by the worker, which takes the files away)
+
+  # OBS (RTMP → the room as the teacher). Optional: COMPOSE_PROFILES=obs and LIVEKIT_INGRESS=true.
+  ingress:
+    image: ${LIVEKIT_INGRESS_IMAGE:-livekit/ingress:v1.4.3}
+    restart: unless-stopped
+    profiles: ["obs"]
+    environment:
+      INGRESS_CONFIG_BODY: |
+        api_key: ${LIVEKIT_API_KEY:-APIunset}
+        api_secret: ${LIVEKIT_API_SECRET:-unset}
+        ws_url: ws://livekit:7880
+        redis:
+          address: redis:6379
+          password: ${REDIS_PASSWORD}
+        rtmp_port: 1935
+        logging:
+          level: warn
+    ports:
+      - "1935:1935"
+    depends_on:
+      - livekit
 
   worker:
     <<: *php

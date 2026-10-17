@@ -8,6 +8,7 @@ services:
       ADMIN_ADDRESS: http://${ADMIN_DOMAIN:-admin.invalid}
       LANDING_ADDRESS: http://${SITES_HOST}, http://www.${SITES_HOST}
       SITES_ADDRESS: http://*.${SITES_HOST}
+      LIVE_ADDRESS: http://${LIVE_DOMAIN:-live.invalid}
       SITES_TLS: none
       TRUSTED_PROXIES: private_ranges
     ports: !override
