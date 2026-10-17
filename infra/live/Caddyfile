@@ -1,0 +1,38 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$LIVE_DOMAIN} {
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		-Server
+	}
+
+	# Only the main server fetches recordings and asks what's on air (its LIVE_PLAYBACK_URL /
+	# LIVE_API_URL = https://<live domain>/rec and /mtx); MediaMTX still checks the service user.
+	handle_path /rec/* {
+		@other not remote_ip {$MAIN_SERVER_IP}
+		respond @other 404
+		reverse_proxy live:9996
+	}
+	handle_path /mtx/* {
+		@other not remote_ip {$MAIN_SERVER_IP}
+		respond @other 404
+		reverse_proxy live:9997
+	}
+
+	@whip path_regexp ^/live/[0-9a-f-]{36}/whip
+	handle @whip {
+		reverse_proxy live:8889
+	}
+	@hls path_regexp ^/live/[0-9a-f-]{36}/
+	handle @hls {
+		reverse_proxy live:8888 {
+			flush_interval -1
+		}
+	}
+	handle {
+		respond 404
+	}
+}

@@ -40,7 +40,7 @@ import type { CourseOutline } from '~/utils/types'
 definePageMeta({ auth: true })
 
 type Opened = {
-  kind: 'video' | 'pdf' | 'exam'
+  kind: 'video' | 'pdf' | 'exam' | 'live'
   session_id?: string
   playback?: { url: string, expires_at: string, poster?: string | null }
   resume_at?: number
@@ -77,6 +77,10 @@ async function open() {
   error.value = null
   try {
     const res = (await api<{ data: Opened }>(`/learner/lessons/${id}/open`, { method: 'POST' })).data
+    if (res.kind === 'live') {
+      await navigateTo(`/live/${id}`, { replace: true })
+      return
+    }
     if (res.kind === 'exam') {
       await navigateTo(`/exams/${id}`, { replace: true })
       return

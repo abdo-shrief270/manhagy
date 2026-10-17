@@ -33,27 +33,28 @@
         </h2>
         <div class="app-card divide-y divide-(--ui-border) overflow-hidden">
           <component
-            :is="lesson.locked ? 'div' : NuxtLink"
+            :is="closed(lesson) ? 'div' : NuxtLink"
             v-for="lesson in chapter.lessons"
             :key="lesson.id"
-            :to="lesson.locked ? undefined : lesson.kind === 'exam' ? `/exams/${lesson.id}` : `/lessons/${lesson.id}?course=${course.id}`"
+            :to="closed(lesson) ? undefined : target(lesson)"
             class="flex items-center gap-3 px-4 py-3"
-            :class="lesson.locked ? 'opacity-60' : 'transition hover:bg-(--ui-bg-elevated)/60'"
+            :class="closed(lesson) ? 'opacity-60' : 'transition hover:bg-(--ui-bg-elevated)/60'"
           >
             <span class="grid size-10 shrink-0 place-items-center rounded-full" :class="lesson.completed ? 'bg-(--ui-success)/15 text-(--ui-success)' : 'bg-(--ui-bg-elevated)'">
-              <UIcon :name="lesson.locked ? 'i-lucide-lock' : lesson.completed ? 'i-lucide-check' : KIND_ICON[lesson.kind]" class="size-5" />
+              <UIcon :name="closed(lesson) ? 'i-lucide-lock' : lesson.completed ? 'i-lucide-check' : KIND_ICON[lesson.kind]" class="size-5" />
             </span>
             <span class="min-w-0 flex-1">
               <span class="block truncate font-bold">{{ lesson.title }}</span>
               <span class="flex flex-wrap gap-x-2 text-xs text-(--ui-text-muted)">
                 <span v-if="lesson.duration_seconds" class="num">{{ formatDuration(lesson.duration_seconds) }}</span>
-                <span v-if="lesson.locked === 'not_yet' && lesson.publish_at">يفتح {{ formatDate(lesson.publish_at, true) }}</span>
+                <span v-if="lesson.kind === 'live' && lesson.locked === 'not_yet' && lesson.publish_at" class="font-bold text-error">لايف {{ formatDate(lesson.publish_at, true) }}</span>
+                <span v-else-if="lesson.locked === 'not_yet' && lesson.publish_at">يفتح {{ formatDate(lesson.publish_at, true) }}</span>
                 <span v-else-if="lesson.locked">{{ LOCK_TEXT[lesson.locked] }}</span>
                 <span v-if="lesson.views_left !== null && !lesson.locked">فاضل <span class="num">{{ lesson.views_left }}</span> مشاهدة</span>
               </span>
             </span>
             <UBadge v-if="lesson.free_preview && !course.enrolled" size="sm" color="success" variant="subtle" label="مجاني" />
-            <UIcon v-if="!lesson.locked" name="i-lucide-chevron-left" class="size-4 text-(--ui-text-muted)" />
+            <UIcon v-if="!closed(lesson)" name="i-lucide-chevron-left" class="size-4 text-(--ui-text-muted)" />
           </component>
         </div>
       </div>
@@ -78,12 +79,23 @@
 </template>
 
 <script setup lang="ts">
-import type { CourseOutline } from '~/utils/types'
+import type { CourseOutline, OutlineLesson } from '~/utils/types'
 
 definePageMeta({ auth: true })
 
 const NuxtLink = resolveComponent('NuxtLink')
-const KIND_ICON = { video: 'i-lucide-play', pdf: 'i-lucide-file-text', exam: 'i-lucide-list-checks' } as const
+const KIND_ICON = { video: 'i-lucide-play', pdf: 'i-lucide-file-text', exam: 'i-lucide-list-checks', live: 'i-lucide-radio' } as const
+
+/** A live lesson before its time still opens: the waiting room (or the teacher started early). */
+function closed(lesson: OutlineLesson): boolean {
+  return lesson.locked !== null && !(lesson.kind === 'live' && lesson.locked === 'not_yet')
+}
+
+function target(lesson: OutlineLesson): string {
+  if (lesson.kind === 'exam') return `/exams/${lesson.id}`
+  if (lesson.kind === 'live' && lesson.locked === 'not_yet') return `/live/${lesson.id}`
+  return `/lessons/${lesson.id}?course=${course.value?.id}`
+}
 const api = useLearnApi()
 const toast = useToast()
 const id = String(useRoute().params.id)

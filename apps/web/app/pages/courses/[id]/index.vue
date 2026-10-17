@@ -56,6 +56,7 @@
                   </div>
                 </div>
                 <UButton v-if="lesson.kind === 'exam' && store.can('assessments.manage')" size="sm" variant="soft" icon="i-lucide-list-checks" label="الامتحان" :to="`/exams/${lesson.id}`" />
+                <UButton v-if="lesson.kind === 'live' && store.can('live.moderate')" size="sm" variant="soft" icon="i-lucide-radio" :label="lesson.media_id ? 'التسجيل جاهز' : 'الاستوديو'" :to="`/live/${lesson.id}`" />
                 <div v-if="canManage" class="flex shrink-0 items-center">
                   <UButton size="xs" color="neutral" variant="ghost" icon="i-lucide-arrow-up" aria-label="لفوق" :disabled="ci === 0 && li === 0" @click="move(lesson, -1)" />
                   <UButton size="xs" color="neutral" variant="ghost" icon="i-lucide-arrow-down" aria-label="لتحت" :disabled="ci === course.chapters.length - 1 && li === chapter.lessons.length - 1" @click="move(lesson, 1)" />
@@ -110,7 +111,7 @@
     <UModal v-model:open="lessonOpen" :title="lessonForm.id ? 'تعديل الدرس' : 'درس جديد'" :ui="{ content: 'sm:max-w-xl' }">
       <template #body>
         <form class="space-y-4" @submit.prevent="saveLesson">
-          <div v-if="!lessonForm.id" class="grid grid-cols-3 gap-2">
+          <div v-if="!lessonForm.id" class="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <button
               v-for="(k, key) in LESSON_KINDS"
               :key="key"
@@ -126,7 +127,12 @@
           <UFormField label="اسم الدرس">
             <UInput v-model="lessonForm.title" class="w-full" placeholder="الحصة 1 — قانون أوم" />
           </UFormField>
-          <UFormField v-if="lessonForm.kind !== 'exam'" :label="lessonForm.kind === 'video' ? 'الفيديو' : 'الملف'">
+          <template v-if="lessonForm.kind === 'live'">
+            <UFormField label="ميعاد الحصة" description="الطلاب بيشوفوا عدّاد لحد الميعاد. تقدر تبدأ البث بدري، والتسجيل بيتحط هنا لوحده بعد ما تخلّص.">
+              <UInput v-model="lessonForm.publish_at" type="datetime-local" class="w-full" required />
+            </UFormField>
+          </template>
+          <UFormField v-else-if="lessonForm.kind !== 'exam'" :label="lessonForm.kind === 'video' ? 'الفيديو' : 'الملف'">
             <MediaPicker :key="lessonForm.kind" v-model="lessonForm.media_id" :kind="lessonForm.kind === 'video' ? 'video' : 'pdf'" />
           </UFormField>
           <p v-else class="rounded-(--ui-radius) bg-(--ui-bg-elevated) p-3 text-sm text-(--ui-text-muted)">
@@ -136,14 +142,14 @@
           <div class="space-y-3 rounded-(--ui-radius) border border-(--ui-border) p-3">
             <USwitch v-model="lessonForm.free_preview" label="مجاني للكل" description="أي طالب مسجّل يشوفه من غير اشتراك — زي الحصة الأولى." />
             <USwitch v-model="lessonForm.requires_previous" label="ما يفتحش غير بعد الدرس اللي قبله" description="الطالب لازم يخلّص اللي قبله (يشوفه أو يسلّم الامتحان)." />
-            <div class="flex flex-wrap items-center gap-3">
+            <div v-if="lessonForm.kind !== 'live'" class="flex flex-wrap items-center gap-3">
               <USwitch v-model="limitViews" label="عدد مرات المشاهدة محدود" />
               <UInputNumber v-if="limitViews" v-model="lessonForm.max_views" :min="1" :max="100" class="w-28" />
             </div>
             <UFormField v-if="lessonForm.kind === 'video'" label="المشاهدة تتحسب بعد" :description="`لما الطالب يتفرّج على ${lessonForm.count_percent}% من الفيديو.`">
               <USlider v-model="lessonForm.count_percent" :min="10" :max="100" :step="5" />
             </UFormField>
-            <UFormField label="يفتح يوم" hint="اختياري" description="فاضي = مع الكورس.">
+            <UFormField v-if="lessonForm.kind !== 'live'" label="يفتح يوم" hint="اختياري" description="فاضي = مع الكورس.">
               <UInput v-model="lessonForm.publish_at" type="datetime-local" class="w-full" />
             </UFormField>
           </div>
@@ -302,7 +308,7 @@ async function saveLesson() {
     count_percent: lessonForm.count_percent,
     publish_at: lessonForm.publish_at ? new Date(lessonForm.publish_at).toISOString() : null,
   }
-  if (lessonForm.kind !== 'exam') body.media_id = lessonForm.media_id
+  if (lessonForm.kind !== 'exam' && lessonForm.kind !== 'live') body.media_id = lessonForm.media_id
   if (!lessonForm.id) body.kind = lessonForm.kind
   try {
     fill((await api<{ data: CourseDetail }>(lessonForm.id ? `/courses/${id}/lessons/${lessonForm.id}` : `/courses/${id}/lessons`, { method: lessonForm.id ? 'PATCH' : 'POST', body })).data)

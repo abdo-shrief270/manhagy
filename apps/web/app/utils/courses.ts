@@ -10,6 +10,7 @@ export const LESSON_KINDS: Record<LessonKind, { label: string, icon: string }> =
   video: { label: 'فيديو', icon: 'i-lucide-play' },
   pdf: { label: 'ملزمة PDF', icon: 'i-lucide-file-text' },
   exam: { label: 'امتحان', icon: 'i-lucide-list-checks' },
+  live: { label: 'لايف', icon: 'i-lucide-radio' },
 }
 
 /** 754 → «12:34», 3725 → «1:02:05». */

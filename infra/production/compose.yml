@@ -33,6 +33,7 @@ services:
       APP_ADDRESS: ${APP_DOMAIN}
       ADMIN_ADDRESS: ${ADMIN_DOMAIN:-http://admin.invalid}
       MARKET_ADDRESS: ${MARKET_DOMAIN:-http://market.invalid}
+      LIVE_ADDRESS: ${LIVE_DOMAIN:-http://live.invalid}
       LANDING_ADDRESS: ${LANDING_ADDRESS:-http://landing.invalid}
       LANDING_DOMAIN: ${SITES_HOST}
       SITES_ADDRESS: ${SITES_ADDRESS:-*.${SITES_HOST}}
@@ -68,6 +69,24 @@ services:
       NUXT_API_INTERNAL: http://api/api/v1
       NUXT_PUBLIC_MARKET_URL: https://${MARKET_DOMAIN:-market.invalid}
       NUXT_PUBLIC_SITE_URL: https://${SITES_HOST}
+    depends_on:
+      - api
+
+  # The broadcast server (MediaMTX) for live lessons. Every publish / read is asked of the API's hook.
+  # Later on a server of its own: infra/live (then remove this service and point LIVE_* there).
+  live:
+    image: ${MEDIAMTX_IMAGE:-bluenviron/mediamtx:latest}
+    restart: unless-stopped
+    environment:
+      MTX_AUTHHTTPADDRESS: http://api/api/v1/public/live/hook/${LIVE_SECRET}
+      # The server's public IP, so browsers can send their media straight to it (WebRTC).
+      MTX_WEBRTCADDITIONALHOSTS: ${LIVE_PUBLIC_IP:-}
+    volumes:
+      - ./live/mediamtx.yml:/mediamtx.yml:ro
+      - live_recordings:/recordings
+    ports:
+      - "1935:1935"      # RTMP: OBS
+      - "8189:8189/udp"  # WebRTC media: the studio in the browser
     depends_on:
       - api
 
@@ -140,5 +159,6 @@ volumes:
   pgdata:
   redisdata:
   storage:
+  live_recordings:
   caddy_data:
   caddy_config:

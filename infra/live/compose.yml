@@ -1,0 +1,41 @@
+# منهجي's broadcast server on a machine of its own (when live lessons outgrow the main server).
+# Run from this directory: docker compose up -d. Then on the main server: remove the `live` service
+# from infra/production/compose.yml and set its LIVE_* to this server (see README.md).
+name: manhagy-live
+
+services:
+  live:
+    image: ${MEDIAMTX_IMAGE:-bluenviron/mediamtx:latest}
+    restart: unless-stopped
+    environment:
+      # The main API decides every publish / read (over the internet, the secret in the address).
+      MTX_AUTHHTTPADDRESS: https://${APP_DOMAIN}/api/v1/public/live/hook/${LIVE_SECRET}
+      MTX_WEBRTCADDITIONALHOSTS: ${LIVE_PUBLIC_IP}
+    volumes:
+      - ../production/live/mediamtx.yml:/mediamtx.yml:ro
+      - recordings:/recordings
+    ports:
+      - "1935:1935"
+      - "8189:8189/udp"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      LIVE_DOMAIN: ${LIVE_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+      MAIN_SERVER_IP: ${MAIN_SERVER_IP}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - live
+
+volumes:
+  recordings:
+  caddy_data:
+  caddy_config:

@@ -35,7 +35,7 @@ export interface CourseSummary {
   published_at: string | null
 }
 
-export type LessonKind = 'video' | 'pdf' | 'exam'
+export type LessonKind = 'video' | 'pdf' | 'exam' | 'live'
 
 export interface Lesson {
   id: string
@@ -410,4 +410,64 @@ export interface IssuedCertificate {
   revoked_at: string | null
   revoke_reason: string | null
   url: string
+}
+
+// Live lessons
+export type LiveStatus = 'idle' | 'live' | 'ended'
+export type ChatMode = 'open' | 'questions' | 'off'
+
+export interface LiveStudio {
+  lesson_id: string
+  title: string
+  course_id: string
+  starts_at: string | null
+  session_id: string
+  status: LiveStatus
+  chat_mode: ChatMode
+  started_at: string | null
+  ended_at: string | null
+  viewers: number
+  peak_viewers: number
+  attended: number
+  recording: 'none' | 'collecting' | 'processing' | 'ready' | 'failed'
+  recording_error: string | null
+  server_ready: boolean
+  publishing: { whip: string | null, rtmp_server: string | null, rtmp_key: string } | null
+}
+
+export interface LiveMessage {
+  id: string
+  seq: number
+  kind: 'chat' | 'question'
+  body: string
+  author: string
+  from_teacher: boolean
+  mine: boolean
+  pinned: boolean
+  answered: boolean
+  hidden: boolean
+  at: string
+}
+
+export interface LivePoll {
+  id: string
+  question: string
+  options: string[]
+  open: boolean
+  my_vote: number | null
+  results: number[] | null
+  votes: number
+}
+
+export interface LiveLessonRow {
+  id: string
+  title: string
+  course_id: string
+  course_title: string
+  course_status: string
+  publish_at: string | null
+  has_replay: boolean
+  status: LiveStatus
+  peak_viewers: number
+  recording: LiveStudio['recording']
 }

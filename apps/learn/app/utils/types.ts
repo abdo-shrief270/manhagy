@@ -36,7 +36,7 @@ export type LockReason = 'not_yet' | 'not_enrolled' | 'previous_required' | 'vie
 
 export interface OutlineLesson {
   id: string
-  kind: 'video' | 'pdf' | 'exam'
+  kind: 'video' | 'pdf' | 'exam' | 'live'
   title: string
   duration_seconds: number | null
   free_preview: boolean
